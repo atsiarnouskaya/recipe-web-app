@@ -2,10 +2,12 @@ package com.WebApp.recipe.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "recipes_ingredients")
 public class RecipeIngredient {
@@ -29,4 +31,10 @@ public class RecipeIngredient {
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
+    public RecipeIngredient(Recipe recipe, Ingredient ingredient, Float amount, Unit unit) {
+        this.recipe = recipe;
+        this.ingredient = ingredient;
+        this.amount = amount;
+        this.unit = unit;
+    }
 }

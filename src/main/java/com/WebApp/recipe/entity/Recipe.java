@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -38,5 +39,11 @@ public class Recipe {
             fetch = FetchType.LAZY)
     private List<RecipeIngredient> ingredients;
 
+    public void addIngredient(RecipeIngredient ingredient) {
+        if (ingredients == null) {
+            ingredients = new ArrayList<>();
+        }
+        ingredients.add(ingredient);
+    }
 
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -33,6 +34,13 @@ public class Ingredient {
                           CascadeType.PERSIST, CascadeType.REFRESH},
                fetch = FetchType.LAZY)
     private List<RecipeIngredient> recipes;
+
+    public void addRecipe(RecipeIngredient recipe) {
+        if (recipes == null) {
+            recipes = new ArrayList<>();
+        }
+        recipes.add(recipe);
+    }
 
     public Ingredient(String name) {
         this.name = name;

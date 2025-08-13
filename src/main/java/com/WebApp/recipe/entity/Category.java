@@ -36,4 +36,8 @@ public class Category {
                 ", categoryName='" + categoryName + '\'' +
                 '}';
     }
+
+    public void lowerCaseName() {
+        this.categoryName = categoryName.toLowerCase();
+    }
 }
