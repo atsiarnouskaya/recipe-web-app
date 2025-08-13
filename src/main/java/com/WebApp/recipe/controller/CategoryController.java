@@ -1,8 +1,8 @@
 package com.WebApp.recipe.controller;
 
+import com.WebApp.recipe.dto.CategoryRequest;
 import com.WebApp.recipe.entity.Category;
 import com.WebApp.recipe.service.CategoryService;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,12 +16,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    public Category addCategory(@RequestBody Category category) {
+    public CategoryRequest addCategory(@RequestBody Category category) {
         return categoryService.addCategory(category);
     }
-
-//    @GetMapping("/categories/{id}")
-//    public Category getCategory(@PathVariable Integer id) {
-//        return categoryService.getCategoryById(id);
-//    }
 }
