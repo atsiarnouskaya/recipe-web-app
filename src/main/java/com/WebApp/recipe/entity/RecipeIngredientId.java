@@ -22,6 +22,14 @@ public class RecipeIngredientId implements java.io.Serializable {
     @Column(name = "ingredient_id", nullable = false)
     private Integer ingredientId;
 
+    public RecipeIngredientId(Integer recipeId, Integer ingredientId) {
+        this.recipeId = recipeId;
+        this.ingredientId = ingredientId;
+    }
+
+    public RecipeIngredientId() {
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -7,4 +7,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(path="units")
 public interface UnitRepository extends JpaRepository<Unit, Integer> {
+    Unit findByName(String unit);
 }

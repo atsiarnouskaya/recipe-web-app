@@ -54,6 +54,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
+    public Category addCategoryServerPurposes(Category category) {
+        Optional<Category> foundCategory = categoryRepository.findFirstByCategoryName(category.getCategoryName());
+
+        if (foundCategory.isEmpty()) {
+            category.lowerCaseName();
+            return categoryRepository.save(category);
+        }
+
+        return foundCategory.get();
+    }
+
+    @Override
     public Category findFirstByCategoryName(String categoryName) {
         Optional<Category> foundCategory = categoryRepository.findFirstByCategoryName(categoryName);
 

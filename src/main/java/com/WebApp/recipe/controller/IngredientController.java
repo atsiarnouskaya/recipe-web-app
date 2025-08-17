@@ -30,6 +30,6 @@ public class IngredientController {
         Category category = new Category(request.getCategoryName());
         ingredient.setCategory(category);
         Ingredient saved = ingredientService.addIngredient(ingredient);
-        return new IngredientRequest(saved.getName(), request.getCategoryName());
+        return new IngredientRequest(null, saved.getName(), request.getCategoryName(), null, null);
     }
 }

@@ -10,6 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IngredientRequest {
+    private String recipeName;
     private String ingredientName;
     private String categoryName;
+    private Double amount;
+    private String unit;
 }

@@ -10,4 +10,6 @@ public interface CategoryService {
     CategoryRequest addCategory(Category category);
 
     Category findFirstByCategoryName(String categoryName);
+
+    Category addCategoryServerPurposes(Category category);
 }

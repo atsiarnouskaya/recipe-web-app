@@ -25,16 +25,17 @@ public class RecipeIngredient {
     private Ingredient ingredient;
 
     @Column(name = "amount")
-    private Float amount;
+    private Double amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
-    public RecipeIngredient(Recipe recipe, Ingredient ingredient, Float amount, Unit unit) {
+    public RecipeIngredient(Recipe recipe, Ingredient ingredient, Double amount, Unit unit) {
         this.recipe = recipe;
         this.ingredient = ingredient;
         this.amount = amount;
         this.unit = unit;
+        this.id = new RecipeIngredientId(recipe.getId(), ingredient.getId());
     }
 }

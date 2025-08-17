@@ -1,6 +1,7 @@
 package com.WebApp.recipe.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Recipe {
 
     @Id
@@ -46,4 +48,11 @@ public class Recipe {
         ingredients.add(ingredient);
     }
 
+    public Recipe(String title, String shortDescription, String instructions, Video video, List<RecipeIngredient> ingredients) {
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.instructions = instructions;
+        this.video = video;
+        this.ingredients = ingredients;
+    }
 }
