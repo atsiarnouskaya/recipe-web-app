@@ -1,23 +1,63 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.dto.Mapper;
+import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
+import com.WebApp.recipe.entity.Recipe;
 import com.WebApp.recipe.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-public class RecipeServiceImpl {
+public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final Mapper mapper;
 
     @Autowired
-    public RecipeServiceImpl(RecipeRepository recipeRepository) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, Mapper mapper) {
         this.recipeRepository = recipeRepository;
+        this.mapper = mapper;
     }
 
-      /*CRUD operations are created out of the box by spring boot rest
-    POST: Creates a new resource ("/recipes")
-    GET: Reads/Retrieve a resource ("/recipes", "/recipes/{id}")
+      /*
+    POST: Creates a new resource (overridden, "/custom/addRecipe")
+    GET: Reads/Retrieve a resource (overridden, "/custom/recipes", "/custom/recipes/{id}")
     PUT: Updates an existing resource ("/recipes/{id}")
     DELETE: Deletes a resource ("/recipes/{id}")
     */
+
+    @Override
+    public RecipeResponse getRecipeById(int id) {
+        Recipe recipe = recipeRepository.findById(id).orElse(null);
+        if (recipe == null) {
+            return null;
+        }
+        return mapper.toRecipeResponseDTO(recipe);
+    }
+
+    @Override
+    public List<RecipeResponse> getRecipes() {
+        List<Recipe> recipes = recipeRepository.findAll();
+        List<RecipeResponse> recipeResponses = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+        }
+        return recipeResponses;
+    }
+
+    @Override
+    @Transactional
+    public void save(Recipe recipe) {
+        recipeRepository.save(recipe);
+    }
+
+    @Override
+    public Recipe findById(int id) {
+        return recipeRepository.findById(id).orElse(null);
+    }
+
 }

@@ -1,8 +1,17 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
 import com.WebApp.recipe.entity.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RecipeService extends JpaRepository<Recipe, Integer> {
+import java.util.List;
 
+public interface RecipeService {
+    RecipeResponse getRecipeById(int id);
+
+    List<RecipeResponse> getRecipes();
+
+    void save(Recipe recipe);
+
+    Recipe findById(int id);
 }

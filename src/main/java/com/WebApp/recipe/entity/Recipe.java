@@ -36,8 +36,7 @@ public class Recipe {
     private Video video;
 
     @OneToMany(mappedBy = "recipe",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-            CascadeType.PERSIST, CascadeType.REFRESH},
+            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
     private List<RecipeIngredient> ingredients;
 
