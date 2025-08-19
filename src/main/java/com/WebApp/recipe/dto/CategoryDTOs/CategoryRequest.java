@@ -1,4 +1,4 @@
-package com.WebApp.recipe.dto;
+package com.WebApp.recipe.dto.CategoryDTOs;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

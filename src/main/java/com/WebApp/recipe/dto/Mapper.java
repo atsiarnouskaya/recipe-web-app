@@ -1,5 +1,9 @@
 package com.WebApp.recipe.dto;
 
+import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
+import com.WebApp.recipe.dto.IngredientDTOs.IngredientResponse;
+import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
+import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
 import com.WebApp.recipe.entity.*;
 import org.springframework.stereotype.Component;
 
@@ -9,11 +13,11 @@ import java.util.List;
 @Component
 public class Mapper {
 
-    public RecipeRequest toRecipeDto (Recipe recipe) {
-        List<IngredientRequest> ingredients = recipe.getIngredients()
-                .stream().map(this::toIngredientRequestDto).toList();
+    public RecipeResponse toRecipeResponseDTO (Recipe recipe) {
+        List<IngredientResponse> ingredients = recipe.getIngredients()
+                .stream().map(this::toIngredientResponseDTO).toList();
 
-        return new RecipeRequest(recipe.getTitle(), recipe.getShortDescription(),
+        return new RecipeResponse(recipe.getTitle(), recipe.getShortDescription(),
                                  recipe.getInstructions(), ingredients,
                                  recipe.getVideo().getUrl());
     }
@@ -27,8 +31,8 @@ public class Mapper {
                           recipeRequest.getSteps(), video, ingredients);
     }
 
-    public IngredientRequest toIngredientRequestDto (RecipeIngredient ingredient) {
-        return new IngredientRequest(ingredient.getRecipe().getTitle(),
+    public IngredientResponse toIngredientResponseDTO (RecipeIngredient ingredient) {
+        return new IngredientResponse(ingredient.getRecipe().getTitle(),
                                      ingredient.getIngredient().getName(),
                                      ingredient.getIngredient().getCategory().getCategoryName(),
                                      ingredient.getAmount(),
@@ -36,10 +40,6 @@ public class Mapper {
     }
 
     public RecipeIngredient toRecipeIngredient (IngredientRequest ingredientRequest) {
-        //Ingredient ingredient = new Ingredient(ingredientRequest.getIngredientName());
-        Unit unit = new Unit(ingredientRequest.getUnit());
-
-        return new RecipeIngredient(null, null,
-                ingredientRequest.getAmount(), unit);
+        return new RecipeIngredient();
     }
 }

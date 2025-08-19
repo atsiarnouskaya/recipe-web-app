@@ -1,6 +1,6 @@
 package com.WebApp.recipe.service;
 
-import com.WebApp.recipe.dto.CategoryRequest;
+import com.WebApp.recipe.dto.CategoryDTOs.CategoryRequest;
 import com.WebApp.recipe.entity.Category;
 import com.WebApp.recipe.entity.Ingredient;
 import com.WebApp.recipe.repository.CategoryRepository;
@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {

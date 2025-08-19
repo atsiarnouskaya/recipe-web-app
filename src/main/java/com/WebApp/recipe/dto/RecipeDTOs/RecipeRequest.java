@@ -1,5 +1,6 @@
-package com.WebApp.recipe.dto;
+package com.WebApp.recipe.dto.RecipeDTOs;
 
+import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

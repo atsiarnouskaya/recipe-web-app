@@ -1,6 +1,6 @@
 package com.WebApp.recipe.controller;
 
-import com.WebApp.recipe.dto.CategoryRequest;
+import com.WebApp.recipe.dto.CategoryDTOs.CategoryRequest;
 import com.WebApp.recipe.entity.Category;
 import com.WebApp.recipe.service.CategoryService;
 import org.springframework.web.bind.annotation.*;

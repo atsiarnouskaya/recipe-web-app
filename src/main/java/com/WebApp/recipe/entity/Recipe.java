@@ -46,6 +46,7 @@ public class Recipe {
             ingredients = new ArrayList<>();
         }
         ingredients.add(ingredient);
+        ingredient.setRecipe(this);
     }
 
     public Recipe(String title, String shortDescription, String instructions, Video video, List<RecipeIngredient> ingredients) {
