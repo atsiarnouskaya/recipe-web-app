@@ -11,8 +11,8 @@
 .mtj.tmp/
 
 # App properties
+src/main/resources/application.properties
 
-application.properties
 
 # Package Files #
 *.jar
