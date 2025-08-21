@@ -88,6 +88,11 @@ public class RecipeController {
         return mapper.toRecipeResponseDTO(recipeToEdit);
     }
 
+    @GetMapping("/getRecipesByIngredients")
+    public List<RecipeResponse> getAllRecipesByIngredients(@RequestBody List<IngredientRequest> ingredients) {
+        return recipeService.getRecipesByIngredients(ingredients);
+    }
+
     private void addIngredientsToRecipe(IngredientRequest ingredient, Recipe recipe) {
         //create and find an ingredient in the db
         Ingredient ingredientFromUser = new Ingredient(ingredient.getIngredientName());

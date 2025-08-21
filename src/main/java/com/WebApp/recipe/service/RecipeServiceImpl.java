@@ -1,8 +1,11 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.Mapper;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
+import com.WebApp.recipe.entity.Ingredient;
 import com.WebApp.recipe.entity.Recipe;
+import com.WebApp.recipe.repository.IngredientRepository;
 import com.WebApp.recipe.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,16 +13,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final IngredientRepository ingredientRepository;
     private final Mapper mapper;
 
     @Autowired
-    public RecipeServiceImpl(RecipeRepository recipeRepository, Mapper mapper) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository,
+                             IngredientRepository ingredientRepository,
+                             Mapper mapper) {
         this.recipeRepository = recipeRepository;
+        this.ingredientRepository = ingredientRepository;
         this.mapper = mapper;
     }
 
@@ -58,6 +66,28 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public Recipe findById(int id) {
         return recipeRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<RecipeResponse> getRecipesByIngredients(List<IngredientRequest> ingredients) {
+        List<RecipeResponse> recipeResponses = new ArrayList<>();
+        List<Recipe> recipes;
+        List<Integer> ingredientIds = new ArrayList<>();
+
+        for (IngredientRequest ingredient : ingredients) {
+            Optional<Ingredient> optionalIngredient = ingredientRepository.findFirstByName(ingredient.getIngredientName());
+            if (optionalIngredient.isPresent()) {
+                ingredientIds.add(optionalIngredient.get().getId());
+            }
+        }
+
+        recipes = recipeRepository.findAllContainingIngredients(ingredientIds, ingredientIds.size());
+
+        for (Recipe recipe : recipes) {
+            recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+        }
+
+        return recipeResponses;
     }
 
 }

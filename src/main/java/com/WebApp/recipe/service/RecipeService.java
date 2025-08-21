@@ -1,5 +1,6 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
 import com.WebApp.recipe.entity.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,6 @@ public interface RecipeService {
     void save(Recipe recipe);
 
     Recipe findById(int id);
+
+    List<RecipeResponse> getRecipesByIngredients(List<IngredientRequest> ingredients);
 }
