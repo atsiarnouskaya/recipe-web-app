@@ -32,10 +32,14 @@ public class IngredientServiceImpl implements IngredientService{
     @Override
     @Transactional
     public Ingredient addIngredient(Ingredient ingredient) {
-        Optional<Ingredient> optional = ingredientRepository.findFirstByName(ingredient.getName());
-        if (optional.isPresent()) {
-            return optional.get();
+
+        Optional<Ingredient> foundIngredient = ingredientRepository.findFirstByName(ingredient.getName());
+
+        if (foundIngredient.isPresent()) {
+            foundIngredient.get().setDeleted(false);
+            return foundIngredient.get();
         }
+
         return ingredientRepository.save(ingredient);
     }
 }

@@ -1,5 +1,7 @@
 package com.WebApp.recipe.dto;
 
+import com.WebApp.recipe.dto.CategoryDTOs.CategoryRequest;
+import com.WebApp.recipe.dto.CategoryDTOs.CategoryResponse;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientResponse;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
@@ -41,5 +43,26 @@ public class Mapper {
 
     public RecipeIngredient toRecipeIngredient (IngredientRequest ingredientRequest) {
         return new RecipeIngredient();
+    }
+
+    public Ingredient toIngredient(IngredientRequest ingredientRequest) {
+        return new Ingredient(ingredientRequest.getIngredientName());
+    }
+
+    public IngredientResponse toIngredientResponse(IngredientRequest ingredientRequest) {
+        return new IngredientResponse(null, ingredientRequest.getIngredientName(),
+                                      ingredientRequest.getCategoryName(), null, null);
+    }
+
+    public Category toCategory(IngredientRequest ingredientRequest) {
+        return new Category(ingredientRequest.getCategoryName());
+    }
+
+    public Category toCategory(CategoryRequest categoryRequest) {
+        return new Category(categoryRequest.getCategoryName());
+    }
+
+    public CategoryResponse toCategoryResponse(CategoryRequest categoryRequest) {
+        return new CategoryResponse(categoryRequest.getCategoryName());
     }
 }

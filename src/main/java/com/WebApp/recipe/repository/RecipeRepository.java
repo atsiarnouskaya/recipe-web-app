@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
+import java.util.Optional;
 
 @RepositoryRestResource(path="recipes")
 public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
@@ -20,4 +21,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
     List<Recipe> findAllContainingIngredients(
             @Param("ingredientIds") List<Integer> ingredientIds,
             @Param("ingredientsAmount") Integer ingredientsAmount);
+
+    Optional<Recipe> findRecipeByTitle(String title);
+
+    Optional<Recipe> findRecipeById(int id);
 }

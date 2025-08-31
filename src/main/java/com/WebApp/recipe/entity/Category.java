@@ -22,7 +22,11 @@ public class Category {
     @Column(name = "category_name")
     private String categoryName;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
+    @OneToMany(mappedBy = "category", cascade = {CascadeType.MERGE, CascadeType.PERSIST,
+            CascadeType.REFRESH, CascadeType.DETACH})
     private List<Ingredient> ingredients;
 
     public Category(String categoryName) {
@@ -39,5 +43,9 @@ public class Category {
 
     public void lowerCaseName() {
         this.categoryName = categoryName.toLowerCase();
+    }
+
+    public void deleteCategory() {
+        this.isDeleted = true;
     }
 }

@@ -39,19 +39,7 @@ public class RecipeController {
 
     @PostMapping("/addRecipe")
     public RecipeResponse addRecipe(@RequestBody RecipeRequest recipeRequest) {
-
-        Recipe recipe = mapper.toRecipe(recipeRequest);
-        recipeService.save(recipe);
-
-
-        for (var ingredient : recipeRequest.getIngredients()) {
-
-            addIngredientsToRecipe(ingredient, recipe);
-
-        }
-
-        recipeService.save(recipe);
-        return mapper.toRecipeResponseDTO(recipe);
+        return recipeService.save(recipeRequest);
     }
 
     @GetMapping("/recipe/{id}")
@@ -66,26 +54,26 @@ public class RecipeController {
 
     @PutMapping("/recipes/{id}")
     public RecipeResponse updateRecipe(@PathVariable int id, @RequestBody RecipeRequest recipeRequest) {
+          RecipeResponse recipeResponse = recipeService.updateRecipe(id, recipeRequest);
+//        Recipe recipeToEdit = recipeService.findById(id);
+//        Recipe recipe = mapper.toRecipe(recipeRequest);
+//
+//        recipeToEdit.setTitle(recipe.getTitle());
+//        recipeToEdit.setShortDescription(recipe.getShortDescription());
+//        recipeToEdit.setInstructions(recipe.getInstructions());
+//        recipeToEdit.setVideo(recipe.getVideo());
+//
+//        recipeToEdit.getIngredients().clear();
+//
+//        for (IngredientRequest ingredient : recipeRequest.getIngredients()) {
+//
+//            addIngredientsToRecipe(ingredient, recipe);
+//
+//        }
+//
+//        recipeService.save(recipeToEdit);
 
-        Recipe recipeToEdit = recipeService.findById(id);
-        Recipe recipe = mapper.toRecipe(recipeRequest);
-
-        recipeToEdit.setTitle(recipe.getTitle());
-        recipeToEdit.setShortDescription(recipe.getShortDescription());
-        recipeToEdit.setInstructions(recipe.getInstructions());
-        recipeToEdit.setVideo(recipe.getVideo());
-
-        recipeToEdit.getIngredients().clear();
-
-        for (IngredientRequest ingredient : recipeRequest.getIngredients()) {
-
-            addIngredientsToRecipe(ingredient, recipe);
-
-        }
-
-        recipeService.save(recipeToEdit);
-
-        return mapper.toRecipeResponseDTO(recipeToEdit);
+        return recipeResponse;
     }
 
     @GetMapping("/getRecipesByIngredients")
@@ -93,37 +81,4 @@ public class RecipeController {
         return recipeService.getRecipesByIngredients(ingredients);
     }
 
-    private void addIngredientsToRecipe(IngredientRequest ingredient, Recipe recipe) {
-        //create and find an ingredient in the db
-        Ingredient ingredientFromUser = new Ingredient(ingredient.getIngredientName());
-        Ingredient ingFromDB = ingredientService.addIngredient(ingredientFromUser); //get ingr with id
-
-        //create and find an ingredient in the db
-        Category categoryToFind = new Category(ingredient.getCategoryName());
-        Category categoryFromUser = categoryService.addCategoryServerPurposes(categoryToFind);
-
-        //set a category for a found ingredient
-        ingFromDB.setCategory(categoryFromUser);
-
-        Unit unit = new Unit(ingredient.getEndUnit());
-        double amount;
-
-        if (!ingredient.getStartUnit().equals(ingredient.getEndUnit())) {
-            unit = unitService.findByNameElseAdd(unit);
-            amount = unitService.convertToAnyUnit(
-                    ingredient.getStartUnit(),
-                    ingredient.getEndUnit(),
-                    ingredient.getAmount());
-        } else {
-            unit = unitService.findByNameElseAdd(unit);
-            amount = ingredient.getAmount();
-        }
-
-        amount = unitService.adjustAmount(amount, ingredient.getAdjustingFactor());
-
-        RecipeIngredient recipeIngredient = new RecipeIngredient(recipe, ingFromDB,
-                amount, unit);
-
-        recipe.addIngredient(recipeIngredient);
-    }
 }

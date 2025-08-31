@@ -35,8 +35,12 @@ public class Recipe {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
     @OneToMany(mappedBy = "recipe",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST,
+                    CascadeType.REFRESH, CascadeType.DETACH},
             fetch = FetchType.LAZY)
     private List<RecipeIngredient> ingredients;
 
@@ -55,4 +59,9 @@ public class Recipe {
         this.video = video;
         this.ingredients = ingredients;
     }
+
+    public void deleteRecipe() {
+        this.isDeleted = true;
+    }
+
 }

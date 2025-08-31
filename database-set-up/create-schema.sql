@@ -6,6 +6,7 @@ USE `recipes`;
 CREATE TABLE `ingredient_category` (
 	`id` INT NOT NULL AUTO_INCREMENT,
     `category_name` VARCHAR(50) DEFAULT NULL,
+    `is_deleted` TINYINT DEFAULT false,
     PRIMARY KEY (`id`)
 ) AUTO_INCREMENT=1;
 
@@ -14,6 +15,7 @@ CREATE TABLE `ingredients` (
     `name` VARCHAR(50) DEFAULT NULL,
     PRIMARY KEY (`id`),
     `category_id` INT DEFAULT NULL,
+    `is_deleted` TINYINT DEFAULT false,
     CONSTRAINT `FK_CATEGORY` FOREIGN KEY (`category_id`)
 		REFERENCES `ingredient_category` (`id`)
 		ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -40,6 +42,7 @@ CREATE TABLE `recipes` (
     `short_description` TEXT DEFAULT NULL,
     `instructions` TEXT DEFAULT NULL,
     `video_id` INT DEFAULT NULL,
+    `is_deleted` TINYINT DEFAULT false,
     PRIMARY KEY (`id`),
     KEY `FK_VIDEO_idx` (`video_id`),
     CONSTRAINT `FK_VIDEO` FOREIGN KEY (`video_id`)

@@ -13,5 +13,4 @@ import java.util.List;
 @NoArgsConstructor
 public class CategoryRequest {
     private String categoryName;
-    private List<String> ingredients;
 }

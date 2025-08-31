@@ -24,14 +24,17 @@ public class Ingredient {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
     CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "category_id")
     private Category category;
 
     @OneToMany(mappedBy = "ingredient",
-               cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                          CascadeType.PERSIST, CascadeType.REFRESH},
+               cascade = {CascadeType.MERGE, CascadeType.PERSIST,
+                       CascadeType.REFRESH, CascadeType.DETACH},
                fetch = FetchType.LAZY)
     private List<RecipeIngredient> recipes;
 
@@ -52,5 +55,9 @@ public class Ingredient {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public void deleteIngredient() {
+        this.isDeleted = true;
     }
 }

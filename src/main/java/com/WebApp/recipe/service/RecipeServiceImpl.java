@@ -2,10 +2,12 @@ package com.WebApp.recipe.service;
 
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.Mapper;
+import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
-import com.WebApp.recipe.entity.Ingredient;
-import com.WebApp.recipe.entity.Recipe;
+import com.WebApp.recipe.entity.*;
+import com.WebApp.recipe.repository.CategoryRepository;
 import com.WebApp.recipe.repository.IngredientRepository;
+import com.WebApp.recipe.repository.RecipeIngredientRepository;
 import com.WebApp.recipe.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,24 @@ public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final IngredientRepository ingredientRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
+    private final IngredientService ingredientService;
+    private final CategoryService categoryService;
+    private final UnitService unitService;
+    private final CategoryRepository categoryRepository;
     private final Mapper mapper;
 
     @Autowired
     public RecipeServiceImpl(RecipeRepository recipeRepository,
-                             IngredientRepository ingredientRepository,
+                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, CategoryRepository categoryRepository,
                              Mapper mapper) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
+        this.recipeIngredientRepository = recipeIngredientRepository;
+        this.ingredientService = ingredientService;
+        this.categoryService = categoryService;
+        this.unitService = unitService;
+        this.categoryRepository = categoryRepository;
         this.mapper = mapper;
     }
 
@@ -59,8 +71,48 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
-    public void save(Recipe recipe) {
+    public RecipeResponse updateRecipe(int id, RecipeRequest recipeRequest) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recipe not found with id: " + id));
+
+        Recipe recipeFromRequest = mapper.toRecipe(recipeRequest);
+        recipe.setTitle(recipeRequest.getTitle());
+        recipe.setShortDescription(recipeRequest.getShortDescription());
+        recipe.setInstructions(recipeRequest.getSteps());
+        recipe.setVideo(recipeFromRequest.getVideo());
+
+        recipe.getIngredients().clear();
+
+        for (var ingredient : recipeRequest.getIngredients()) {
+            addIngredientsToRecipe(ingredient, recipe);
+        }
+
+        recipe.setDeleted(false);
         recipeRepository.save(recipe);
+
+        return mapper.toRecipeResponseDTO(recipe);
+    }
+
+    @Override
+    @Transactional
+    public RecipeResponse save(RecipeRequest recipeRequest) {
+        Recipe recipe = mapper.toRecipe(recipeRequest);
+
+        Optional<Recipe> recipeFromDB = recipeRepository.findRecipeByTitle(recipeRequest.getTitle());
+        if (recipeFromDB.isPresent()) {
+            recipe.setId(recipeFromDB.get().getId());
+        }
+
+        recipeRepository.save(recipe);
+
+        for (var ingredient : recipeRequest.getIngredients()) {
+
+            addIngredientsToRecipe(ingredient, recipe);
+
+        }
+
+        recipeRepository.save(recipe);
+        return mapper.toRecipeResponseDTO(recipe);
     }
 
     @Override
@@ -88,6 +140,51 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         return recipeResponses;
+    }
+
+    private void addIngredientsToRecipe(IngredientRequest ingredient, Recipe recipe) {
+
+        //create and find an ingredient in the db
+        Ingredient ingredientFromUser = new Ingredient(ingredient.getIngredientName());
+        Ingredient ingFromDB = ingredientService.addIngredient(ingredientFromUser); //get ingr with id
+        ingFromDB.setDeleted(false);
+
+        //create and find an ingredient in the db
+        Category categoryToFind = new Category(ingredient.getCategoryName());
+        Category categoryFromUser = categoryService.addCategoryServerPurposes(categoryToFind);
+        categoryFromUser.setDeleted(false);
+
+        //set a category for a found ingredient
+        ingFromDB.setCategory(categoryFromUser);
+
+        Unit unit = new Unit(ingredient.getEndUnit());
+        double amount;
+
+        if (!ingredient.getStartUnit().equals(ingredient.getEndUnit())) {
+            unit = unitService.findByNameElseAdd(unit);
+            amount = unitService.convertToAnyUnit(
+                    ingredient.getStartUnit(),
+                    ingredient.getEndUnit(),
+                    ingredient.getAmount());
+        } else {
+            unit = unitService.findByNameElseAdd(unit);
+            amount = ingredient.getAmount();
+        }
+
+        amount = unitService.adjustAmount(amount, ingredient.getAdjustingFactor());
+
+        Optional<RecipeIngredient> recipeIngredientIfExists = recipeIngredientRepository.findByRecipeAndIngredient(recipe, ingFromDB);
+
+        RecipeIngredient recipeIngredient;
+
+        if (recipeIngredientIfExists.isEmpty()) {
+            recipeIngredient = new RecipeIngredient(recipe, ingFromDB,
+                    amount, unit);
+        } else {
+            recipeIngredient = recipeIngredientIfExists.get();
+        }
+
+        recipe.addIngredient(recipeIngredient);
     }
 
 }

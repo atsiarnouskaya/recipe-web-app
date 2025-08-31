@@ -34,6 +34,7 @@ public class Unit {
                 '}';
     }
 
-    @OneToMany(mappedBy = "unit")
+    @OneToMany(mappedBy = "unit", cascade = {CascadeType.MERGE, CascadeType.PERSIST,
+    CascadeType.REFRESH, CascadeType.DETACH})
     private List<RecipeIngredient> recipes;
 }
