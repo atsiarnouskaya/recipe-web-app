@@ -26,11 +26,7 @@ public class CategoryController {
 
     @PutMapping("/softDelete")
     public CategoryResponse deleteCategory(@RequestBody CategoryRequest categoryRequest) {
-
-        Category category = mapper.toCategory(categoryRequest);
-        category = categoryService.findFirstByCategoryName(category.getCategoryName());
-
-        categoryService.deleteCategory(category);
+        categoryService.deleteCategory(categoryRequest);
 
         return mapper.toCategoryResponse(categoryRequest);
     }

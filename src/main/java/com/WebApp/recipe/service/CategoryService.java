@@ -10,7 +10,5 @@ public interface CategoryService {
 
     Category findFirstByCategoryName(String categoryName);
 
-    Category addCategoryServerPurposes(Category category);
-
-    void deleteCategory(Category category);
+    void deleteCategory(CategoryRequest categoryRequest);
 }

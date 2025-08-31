@@ -5,10 +5,7 @@ import com.WebApp.recipe.dto.Mapper;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
 import com.WebApp.recipe.entity.*;
-import com.WebApp.recipe.repository.CategoryRepository;
-import com.WebApp.recipe.repository.IngredientRepository;
-import com.WebApp.recipe.repository.RecipeIngredientRepository;
-import com.WebApp.recipe.repository.RecipeRepository;
+import com.WebApp.recipe.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +20,7 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeRepository recipeRepository;
     private final IngredientRepository ingredientRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
+    private final VideoRepository videoRepository;
     private final IngredientService ingredientService;
     private final CategoryService categoryService;
     private final UnitService unitService;
@@ -31,11 +29,12 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Autowired
     public RecipeServiceImpl(RecipeRepository recipeRepository,
-                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, CategoryRepository categoryRepository,
+                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, VideoRepository videoRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, CategoryRepository categoryRepository,
                              Mapper mapper) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
         this.recipeIngredientRepository = recipeIngredientRepository;
+        this.videoRepository = videoRepository;
         this.ingredientService = ingredientService;
         this.categoryService = categoryService;
         this.unitService = unitService;
@@ -56,6 +55,9 @@ public class RecipeServiceImpl implements RecipeService {
         if (recipe == null) {
             return null;
         }
+        if (recipe.getIsDeleted()) {
+            return null;
+        }
         return mapper.toRecipeResponseDTO(recipe);
     }
 
@@ -63,9 +65,13 @@ public class RecipeServiceImpl implements RecipeService {
     public List<RecipeResponse> getRecipes() {
         List<Recipe> recipes = recipeRepository.findAll();
         List<RecipeResponse> recipeResponses = new ArrayList<>();
+
         for (Recipe recipe : recipes) {
-            recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+            if (!recipe.getIsDeleted()) {
+                recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+            }
         }
+
         return recipeResponses;
     }
 
@@ -79,7 +85,14 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setTitle(recipeRequest.getTitle());
         recipe.setShortDescription(recipeRequest.getShortDescription());
         recipe.setInstructions(recipeRequest.getSteps());
-        recipe.setVideo(recipeFromRequest.getVideo());
+
+
+        Optional<Video> video = videoRepository.findFirstByUrl(recipeRequest.getVideoURL());
+        if (video.isPresent()) {
+            recipe.setVideo(video.get());
+        } else {
+            recipe.setVideo(recipeFromRequest.getVideo());
+        }
 
         recipe.getIngredients().clear();
 
@@ -128,6 +141,7 @@ public class RecipeServiceImpl implements RecipeService {
 
         for (IngredientRequest ingredient : ingredients) {
             Optional<Ingredient> optionalIngredient = ingredientRepository.findFirstByName(ingredient.getIngredientName());
+
             if (optionalIngredient.isPresent()) {
                 ingredientIds.add(optionalIngredient.get().getId());
             }
@@ -136,7 +150,9 @@ public class RecipeServiceImpl implements RecipeService {
         recipes = recipeRepository.findAllContainingIngredients(ingredientIds, ingredientIds.size());
 
         for (Recipe recipe : recipes) {
-            recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+            if (!recipe.getIsDeleted()) {
+                recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+            }
         }
 
         return recipeResponses;
@@ -151,11 +167,20 @@ public class RecipeServiceImpl implements RecipeService {
 
         //create and find an ingredient in the db
         Category categoryToFind = new Category(ingredient.getCategoryName());
-        Category categoryFromUser = categoryService.addCategoryServerPurposes(categoryToFind);
-        categoryFromUser.setDeleted(false);
+
+        Optional<Category> categoryFromUser = categoryRepository.findFirstByCategoryName(categoryToFind.getCategoryName());
+        Category category;
+
+        if (categoryFromUser.isPresent()) {
+            category = categoryFromUser.get();
+        } else {
+            category = new Category(categoryToFind.getCategoryName());
+        }
+
+        category.setDeleted(false);
 
         //set a category for a found ingredient
-        ingFromDB.setCategory(categoryFromUser);
+        ingFromDB.setCategory(category);
 
         Unit unit = new Unit(ingredient.getEndUnit());
         double amount;

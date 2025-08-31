@@ -64,4 +64,7 @@ public class Recipe {
         this.isDeleted = true;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
 }

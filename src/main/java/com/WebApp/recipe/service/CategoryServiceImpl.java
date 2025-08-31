@@ -74,26 +74,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public Category addCategoryServerPurposes(Category category) {
-
-        Optional<Category> foundCategory = categoryRepository.findFirstByCategoryName(category.getCategoryName());
-
-        if (foundCategory.isEmpty()) {
-            category.lowerCaseName();
-            return categoryRepository.save(category);
-        }
-
-        return foundCategory.get();
-    }
-
-    @Override
-    @Transactional
-    public void deleteCategory(Category category) {
-        Optional<Category> foundCategory = categoryRepository.findFirstByCategoryName(category.getCategoryName());
+    public void deleteCategory(CategoryRequest categoryRequest) {
+        Optional<Category> foundCategory = categoryRepository.findFirstByCategoryName(categoryRequest.getCategoryName());
 
         Category categoryToDelete;
         if (foundCategory.isPresent()) {
             categoryToDelete = foundCategory.get();
+
             List<Ingredient> ingredients = ingredientRepository.findAllByCategoryId(categoryToDelete.getId());
 
             for (Ingredient ingredient : ingredients) {

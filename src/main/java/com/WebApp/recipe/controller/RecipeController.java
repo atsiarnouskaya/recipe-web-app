@@ -21,20 +21,10 @@ import java.util.List;
 public class RecipeController {
 
     private final RecipeService recipeService;
-    private final IngredientService ingredientService;
-    private final CategoryService categoryService;
-    private final UnitService unitService;
-    private final Mapper mapper;
 
     @Autowired
-    public RecipeController(RecipeService recipeService, IngredientService ingredientService,
-                            Mapper mapper, CategoryService categoryService,
-                            UnitService unitService) {
+    public RecipeController(RecipeService recipeService) {
         this.recipeService = recipeService;
-        this.ingredientService = ingredientService;
-        this.categoryService = categoryService;
-        this.unitService = unitService;
-        this.mapper = mapper;
     }
 
     @PostMapping("/addRecipe")
@@ -54,26 +44,7 @@ public class RecipeController {
 
     @PutMapping("/recipes/{id}")
     public RecipeResponse updateRecipe(@PathVariable int id, @RequestBody RecipeRequest recipeRequest) {
-          RecipeResponse recipeResponse = recipeService.updateRecipe(id, recipeRequest);
-//        Recipe recipeToEdit = recipeService.findById(id);
-//        Recipe recipe = mapper.toRecipe(recipeRequest);
-//
-//        recipeToEdit.setTitle(recipe.getTitle());
-//        recipeToEdit.setShortDescription(recipe.getShortDescription());
-//        recipeToEdit.setInstructions(recipe.getInstructions());
-//        recipeToEdit.setVideo(recipe.getVideo());
-//
-//        recipeToEdit.getIngredients().clear();
-//
-//        for (IngredientRequest ingredient : recipeRequest.getIngredients()) {
-//
-//            addIngredientsToRecipe(ingredient, recipe);
-//
-//        }
-//
-//        recipeService.save(recipeToEdit);
-
-        return recipeResponse;
+        return recipeService.updateRecipe(id, recipeRequest);
     }
 
     @GetMapping("/getRecipesByIngredients")
