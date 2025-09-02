@@ -1,6 +1,9 @@
 package com.WebApp.recipe.Security.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,9 +20,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotNull(message = "is required")
     @Column(name = "username")
     private String username;
 
+    @NotNull(message = "is required")
+    @Size(min = 8, message = "must be longer than 8 characters")
     @Column(name = "password")
     private String password;
 
