@@ -3,6 +3,10 @@ DROP SCHEMA IF EXISTS `recipes`;
 CREATE SCHEMA `recipes`;
 USE `recipes`;
 
+--
+-- Creating a recipe related tables--
+--
+
 CREATE TABLE `ingredient_category` (
 	`id` INT NOT NULL AUTO_INCREMENT,
     `category_name` VARCHAR(50) DEFAULT NULL,
@@ -70,3 +74,37 @@ CREATE TABLE `recipes_ingredients` (
 		REFERENCES `units` (`id`)
 		ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+
+--
+-- Creating a user/roles tables for spring security
+--
+CREATE TABLE `user` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+    `username` varchar(50) NOT NULL,
+    `password` varchar(80) NOT NULL,
+    `enabled` tinyint NOT NULL,
+    
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `role` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+    `role` varchar(50) NOT NULL,
+    
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `users_roles` (
+	`user_id` INT NOT NULL,
+    `role_id` INT NOT NULL,
+    PRIMARY KEY (`user_id`, `role_id`),
+    
+    CONSTRAINT `FK_USERS` FOREIGN KEY (`user_id`)
+    REFERENCES `user`(`id`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+    
+	CONSTRAINT `FK_ROLES` FOREIGN KEY (`role_id`)
+    REFERENCES `role`(`id`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+    );
