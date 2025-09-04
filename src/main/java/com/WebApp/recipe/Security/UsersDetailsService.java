@@ -1,0 +1,31 @@
+package com.WebApp.recipe.Security;
+
+import com.WebApp.recipe.Security.entity.User;
+import com.WebApp.recipe.Security.entity.UserPrinciple;
+import com.WebApp.recipe.Security.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UsersDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public UsersDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userRepository.findUserByUsername(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+
+        return new UserPrinciple(user);
+    }
+}
