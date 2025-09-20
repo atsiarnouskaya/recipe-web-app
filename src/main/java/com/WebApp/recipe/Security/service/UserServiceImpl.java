@@ -1,10 +1,13 @@
 package com.WebApp.recipe.Security.service;
 
+import com.WebApp.recipe.Security.entity.Role;
 import com.WebApp.recipe.Security.entity.User;
 import com.WebApp.recipe.Security.exception.UserAlreadyExistsException;
 import com.WebApp.recipe.Security.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,6 +31,7 @@ public class UserServiceImpl implements UserService {
 
         if (newUser == null) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            user.setRoles(List.of(new Role("ROLE_USER")));
             return userRepository.save(user);
         }
         else {

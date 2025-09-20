@@ -1,5 +1,7 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.Security.entity.User;
+import com.WebApp.recipe.Security.service.UserService;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.Mapper;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
@@ -24,12 +26,13 @@ public class RecipeServiceImpl implements RecipeService {
     private final IngredientService ingredientService;
     private final CategoryService categoryService;
     private final UnitService unitService;
+    private final UserService userService;
     private final CategoryRepository categoryRepository;
     private final Mapper mapper;
 
     @Autowired
     public RecipeServiceImpl(RecipeRepository recipeRepository,
-                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, VideoRepository videoRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, CategoryRepository categoryRepository,
+                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, VideoRepository videoRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, UserService userService, CategoryRepository categoryRepository,
                              Mapper mapper) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
@@ -38,6 +41,7 @@ public class RecipeServiceImpl implements RecipeService {
         this.ingredientService = ingredientService;
         this.categoryService = categoryService;
         this.unitService = unitService;
+        this.userService = userService;
         this.categoryRepository = categoryRepository;
         this.mapper = mapper;
     }
@@ -110,6 +114,10 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public RecipeResponse save(RecipeRequest recipeRequest) {
         Recipe recipe = mapper.toRecipe(recipeRequest);
+        String username = recipeRequest.getUsername();
+
+        User user = userService.getUserByUsername(username);
+        recipe.setUser(user);
 
         Optional<Recipe> recipeFromDB = recipeRepository.findRecipeByTitle(recipeRequest.getTitle());
         if (recipeFromDB.isPresent()) {
@@ -158,29 +166,47 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeResponses;
     }
 
+    @Override
+    public RecipeResponse deleteRecipe(int id) {
+        Optional<Recipe> recipeFromDB = recipeRepository.findById(id);
+
+        if (recipeFromDB.isPresent()) {
+            recipeFromDB.get().deleteRecipe();
+        }
+        else {
+            throw new RuntimeException("Recipe not found with id: " + id);
+        }
+        return mapper.toRecipeResponseDTO(recipeRepository.save(recipeFromDB.get()));
+    }
+
     private void addIngredientsToRecipe(IngredientRequest ingredient, Recipe recipe) {
 
-        //create and find an ingredient in the db
-        Ingredient ingredientFromUser = new Ingredient(ingredient.getIngredientName());
-        Ingredient ingFromDB = ingredientService.addIngredient(ingredientFromUser); //get ingr with id
-        ingFromDB.setDeleted(false);
+        //create or find an ingredient in the db
+        Optional<Ingredient> ingFromDB = ingredientRepository.findFirstByName(ingredient.getIngredientName());
 
-        //create and find an ingredient in the db
-        Category categoryToFind = new Category(ingredient.getCategoryName());
+        Ingredient ing;
+        if (ingFromDB.isPresent()) {
+            ing = ingFromDB.get();
+        }
+        else {
+            ing = new Ingredient(ingredient.getIngredientName());
+            ingredientRepository.save(ing);
+        }
+        ing.setDeleted(false);
 
-        Optional<Category> categoryFromUser = categoryRepository.findFirstByCategoryName(categoryToFind.getCategoryName());
+        Optional<Category> categoryFromUser = categoryRepository.findFirstByCategoryName(ingredient.getCategoryName());
+
         Category category;
-
         if (categoryFromUser.isPresent()) {
             category = categoryFromUser.get();
         } else {
-            category = new Category(categoryToFind.getCategoryName());
+            category = new Category(ingredient.getCategoryName());
+            categoryRepository.save(category);
         }
-
         category.setDeleted(false);
 
-        //set a category for a found ingredient
-        ingFromDB.setCategory(category);
+        //set a category for a found or created ingredient
+        ing.setCategory(category);
 
         Unit unit = new Unit(ingredient.getEndUnit());
         double amount;
@@ -198,18 +224,25 @@ public class RecipeServiceImpl implements RecipeService {
 
         amount = unitService.adjustAmount(amount, ingredient.getAdjustingFactor());
 
-        Optional<RecipeIngredient> recipeIngredientIfExists = recipeIngredientRepository.findByRecipeAndIngredient(recipe, ingFromDB);
+        Optional<Recipe> recipeFromDbOpt = recipeRepository.findById(recipe.getId());
+        Recipe recipeFromDb;
+        if (recipeFromDbOpt.isPresent()) {
+            recipeFromDb = recipeFromDbOpt.get();
+        } else {
+            throw new RuntimeException("Recipe not found with id: " + recipe.getId());
+        }
+
+        Optional<RecipeIngredient> recipeIngredientIfExists = recipeIngredientRepository.findByRecipeAndIngredient(recipeFromDb, ing);
 
         RecipeIngredient recipeIngredient;
-
         if (recipeIngredientIfExists.isEmpty()) {
-            recipeIngredient = new RecipeIngredient(recipe, ingFromDB,
+            recipeIngredient = new RecipeIngredient(recipeFromDb, ing,
                     amount, unit);
         } else {
             recipeIngredient = recipeIngredientIfExists.get();
         }
 
-        recipe.addIngredient(recipeIngredient);
+        recipeFromDb.addIngredient(recipeIngredient);
     }
 
 }

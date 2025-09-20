@@ -1,5 +1,6 @@
 package com.WebApp.recipe.entity;
 
+import com.WebApp.recipe.Security.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,10 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User user;
 
     @Column(name = "title")
     private String title;

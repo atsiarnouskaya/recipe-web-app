@@ -1,5 +1,6 @@
 package com.WebApp.recipe.Security.entity;
 
+import com.WebApp.recipe.entity.Recipe;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -45,5 +46,8 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "user")
+    private List<Recipe> recipes;
 
 }

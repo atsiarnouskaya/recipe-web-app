@@ -4,6 +4,39 @@ CREATE SCHEMA `recipes`;
 USE `recipes`;
 
 --
+-- Creating a user/roles tables for spring security
+--
+CREATE TABLE `user` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+    `username` varchar(50) NOT NULL,
+    `password` varchar(80) NOT NULL,
+    `enabled` tinyint NOT NULL,
+    
+    PRIMARY KEY (`id`)
+)AUTO_INCREMENT=1;
+
+CREATE TABLE `role` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+    `role` varchar(50) NOT NULL,
+    
+    PRIMARY KEY (`id`)
+)AUTO_INCREMENT=1;
+
+CREATE TABLE `users_roles` (
+	`user_id` INT NOT NULL,
+    `role_id` INT NOT NULL,
+    PRIMARY KEY (`user_id`, `role_id`),
+    
+    CONSTRAINT `FK_USERS` FOREIGN KEY (`user_id`)
+    REFERENCES `user`(`id`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+    
+	CONSTRAINT `FK_ROLES` FOREIGN KEY (`role_id`)
+    REFERENCES `role`(`id`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+    );
+
+--
 -- Creating a recipe related tables--
 --
 
@@ -42,6 +75,7 @@ CREATE TABLE `videos` (
 
 CREATE TABLE `recipes` (
 	`id` INT NOT NULL AUTO_INCREMENT,
+    `author_id` INT NOT NULL,
     `title` VARCHAR(100) DEFAULT NULL,
     `short_description` TEXT DEFAULT NULL,
     `instructions` TEXT DEFAULT NULL,
@@ -51,7 +85,10 @@ CREATE TABLE `recipes` (
     KEY `FK_VIDEO_idx` (`video_id`),
     CONSTRAINT `FK_VIDEO` FOREIGN KEY (`video_id`)
 		REFERENCES `videos`(`id`)
-		ON DELETE NO ACTION ON UPDATE NO ACTION
+		ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT `FK_USER` FOREIGN KEY (`author_id`)
+		REFERENCES `user`(`id`)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
 ) AUTO_INCREMENT=1;
     
 CREATE TABLE `recipes_ingredients` (
@@ -76,35 +113,4 @@ CREATE TABLE `recipes_ingredients` (
 );
 
 
---
--- Creating a user/roles tables for spring security
---
-CREATE TABLE `user` (
-	`id` INT NOT NULL AUTO_INCREMENT,
-    `username` varchar(50) NOT NULL,
-    `password` varchar(80) NOT NULL,
-    `enabled` tinyint NOT NULL,
-    
-    PRIMARY KEY (`id`)
-);
 
-CREATE TABLE `role` (
-	`id` INT NOT NULL AUTO_INCREMENT,
-    `role` varchar(50) NOT NULL,
-    
-    PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `users_roles` (
-	`user_id` INT NOT NULL,
-    `role_id` INT NOT NULL,
-    PRIMARY KEY (`user_id`, `role_id`),
-    
-    CONSTRAINT `FK_USERS` FOREIGN KEY (`user_id`)
-    REFERENCES `user`(`id`)
-    ON DELETE NO ACTION ON UPDATE NO ACTION,
-    
-	CONSTRAINT `FK_ROLES` FOREIGN KEY (`role_id`)
-    REFERENCES `role`(`id`)
-    ON DELETE NO ACTION ON UPDATE NO ACTION
-    );

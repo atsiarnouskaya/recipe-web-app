@@ -15,6 +15,7 @@ import java.util.List;
 public class RecipeRequest {
 
     private String title;
+    private String username;
     private String shortDescription;
     private String steps;
     private List<IngredientRequest> ingredients;
