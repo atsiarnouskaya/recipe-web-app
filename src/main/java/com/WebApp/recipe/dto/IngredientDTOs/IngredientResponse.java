@@ -10,9 +10,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IngredientResponse {
+
+    private int id;
     private String recipeName;
     private String ingredientName;
     private String categoryName;
-    private Double adjustedAmount;
-    private String convertedUnit;
+    private Double amount;
+    private String unit;
 }

@@ -71,7 +71,7 @@ public class UnitServiceImpl implements UnitService {
     @Override
     @Transactional
     public Unit findByNameElseAdd(Unit unit) {
-        Optional<Unit> foundUnit = unitRepository.findByName(unit.getName());
+        Optional<Unit> foundUnit = unitRepository.findFirstByName(unit.getName());
 
         if (foundUnit.isPresent()) {
             return foundUnit.get();

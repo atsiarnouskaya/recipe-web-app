@@ -10,4 +10,7 @@ import java.util.Optional;
 @RepositoryRestResource(path="units")
 public interface UnitRepository extends JpaRepository<Unit, Integer> {
     Optional<Unit> findByName(String unit);
+
+    Optional<Unit> findFirstByName(String name);
 }
+

@@ -19,9 +19,9 @@ public class Mapper {
         List<IngredientResponse> ingredients = recipe.getIngredients()
                 .stream().map(this::toIngredientResponseDTO).toList();
 
-        return new RecipeResponse(recipe.getTitle(), recipe.getShortDescription(),
+        return new RecipeResponse(recipe.getId(), recipe.getTitle(), recipe.getShortDescription(),
                                  recipe.getInstructions(), ingredients,
-                                 recipe.getVideo().getUrl());
+                                 recipe.getVideo().getUrl(), recipe.getUser().getId(), recipe.getUser().getUsername());
     }
 
     public Recipe toRecipe (RecipeRequest recipeRequest) {
@@ -34,7 +34,8 @@ public class Mapper {
     }
 
     public IngredientResponse toIngredientResponseDTO (RecipeIngredient ingredient) {
-        return new IngredientResponse(ingredient.getRecipe().getTitle(),
+        return new IngredientResponse(ingredient.getIngredient().getId(),
+                                     ingredient.getRecipe().getTitle(),
                                      ingredient.getIngredient().getName(),
                                      ingredient.getIngredient().getCategory().getCategoryName(),
                                      ingredient.getAmount(),
@@ -50,7 +51,7 @@ public class Mapper {
     }
 
     public IngredientResponse toIngredientResponse(IngredientRequest ingredientRequest) {
-        return new IngredientResponse(null, ingredientRequest.getIngredientName(),
+        return new IngredientResponse(0, null, ingredientRequest.getIngredientName(),
                                       ingredientRequest.getCategoryName(), null, null);
     }
 

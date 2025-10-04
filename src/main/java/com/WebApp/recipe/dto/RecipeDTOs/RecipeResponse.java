@@ -14,10 +14,14 @@ import java.util.List;
 @Setter
 public class RecipeResponse {
 
+    private int id;
     private String title;
     private String shortDescription;
     private String steps;
     private List<IngredientResponse> ingredients;
     private String videoURL;
+
+    private int userId;
+    private String username;
 
 }

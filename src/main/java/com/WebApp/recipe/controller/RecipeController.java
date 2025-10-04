@@ -34,8 +34,8 @@ public class RecipeController {
     @PostMapping("/addRecipe")
     public RecipeResponse addRecipe(@RequestBody RecipeRequest recipeRequest,
                                     @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        recipeRequest.setUsername(username);
+        //String username = userDetails.getUsername();
+        recipeRequest.setUsername("nastya");
         return recipeService.save(recipeRequest);
     }
 

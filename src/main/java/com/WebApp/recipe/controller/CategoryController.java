@@ -7,6 +7,7 @@ import com.WebApp.recipe.entity.Category;
 import com.WebApp.recipe.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("custom")
 public class CategoryController {

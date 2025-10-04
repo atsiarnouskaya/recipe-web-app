@@ -1,6 +1,8 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.Security.DTOs.UserResponse;
 import com.WebApp.recipe.Security.entity.User;
+import com.WebApp.recipe.Security.repository.UserRepository;
 import com.WebApp.recipe.Security.service.UserService;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.Mapper;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -28,11 +31,12 @@ public class RecipeServiceImpl implements RecipeService {
     private final UnitService unitService;
     private final UserService userService;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
     private final Mapper mapper;
 
     @Autowired
     public RecipeServiceImpl(RecipeRepository recipeRepository,
-                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, VideoRepository videoRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, UserService userService, CategoryRepository categoryRepository,
+                             IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, VideoRepository videoRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, UserService userService, CategoryRepository categoryRepository, UserRepository userRepository,
                              Mapper mapper) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
@@ -43,6 +47,7 @@ public class RecipeServiceImpl implements RecipeService {
         this.unitService = unitService;
         this.userService = userService;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
         this.mapper = mapper;
     }
 
@@ -72,7 +77,9 @@ public class RecipeServiceImpl implements RecipeService {
 
         for (Recipe recipe : recipes) {
             if (!recipe.getIsDeleted()) {
-                recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+                RecipeResponse recipeResponse = mapper.toRecipeResponseDTO(recipe);
+                System.out.println(recipeResponse.toString());
+                recipeResponses.add(recipeResponse);
             }
         }
 
@@ -99,13 +106,14 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         recipe.getIngredients().clear();
+        recipe = recipeRepository.save(recipe);
 
         for (var ingredient : recipeRequest.getIngredients()) {
             addIngredientsToRecipe(ingredient, recipe);
         }
 
         recipe.setDeleted(false);
-        recipeRepository.save(recipe);
+        recipe = recipeRepository.save(recipe);
 
         return mapper.toRecipeResponseDTO(recipe);
     }
@@ -116,8 +124,13 @@ public class RecipeServiceImpl implements RecipeService {
         Recipe recipe = mapper.toRecipe(recipeRequest);
         String username = recipeRequest.getUsername();
 
-        User user = userService.getUserByUsername(username);
-        recipe.setUser(user);
+        Optional<User> user = userRepository.findUserByUsername(username);
+        if (user.isPresent()) {
+            recipe.setUser(user.get());
+        } else {
+            recipe.setUser(null);
+        }
+
 
         Optional<Recipe> recipeFromDB = recipeRepository.findRecipeByTitle(recipeRequest.getTitle());
         if (recipeFromDB.isPresent()) {
@@ -208,21 +221,44 @@ public class RecipeServiceImpl implements RecipeService {
         //set a category for a found or created ingredient
         ing.setCategory(category);
 
-        Unit unit = new Unit(ingredient.getEndUnit());
-        double amount;
+//        String endUnit = ingredient.getEndUnit();
+//        String startUnit = ingredient.getStartUnit();
+//
+//        if(Objects.equals(endUnit, "")) {
+//            endUnit = startUnit;
+//        }
+//
+//        Unit unit = new Unit(startUnit);
+//        double amount;
+//
+//        if (!startUnit.equals(endUnit)) {
+//            unit = unitService.findByNameElseAdd(unit);
+//            amount = unitService.convertToAnyUnit(
+//                    ingredient.getStartUnit(),
+//                    ingredient.getEndUnit(),
+//                    ingredient.getAmount());
+//        } else {
+//            unit = unitService.findByNameElseAdd(unit);
+//            if (ingredient.getAmount() != null) {
+//                amount = ingredient.getAmount();
+//            } else {
+//                amount = 0;
+//            }
+//
+//        }
 
-        if (!ingredient.getStartUnit().equals(ingredient.getEndUnit())) {
-            unit = unitService.findByNameElseAdd(unit);
-            amount = unitService.convertToAnyUnit(
-                    ingredient.getStartUnit(),
-                    ingredient.getEndUnit(),
-                    ingredient.getAmount());
-        } else {
-            unit = unitService.findByNameElseAdd(unit);
-            amount = ingredient.getAmount();
+        Unit unit = new Unit (ingredient.getUnit());
+        Double amount = ingredient.getAmount();
+
+        Unit unitFromDB = unitService.findByNameElseAdd(unit);
+
+        Double adjustingFactor = ingredient.getAdjustingFactor();
+
+        if(adjustingFactor == 0.0) {
+            adjustingFactor = 1.0;
         }
 
-        amount = unitService.adjustAmount(amount, ingredient.getAdjustingFactor());
+        amount = unitService.adjustAmount(amount, adjustingFactor);
 
         Optional<Recipe> recipeFromDbOpt = recipeRepository.findById(recipe.getId());
         Recipe recipeFromDb;
