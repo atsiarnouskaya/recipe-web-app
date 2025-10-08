@@ -8,7 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,8 +16,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+
 import java.util.List;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
 
 @Configuration
@@ -35,15 +37,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests.requestMatchers("/signin", "/signup").permitAll()
-                                 .anyRequest().authenticated())
-                        //.anyRequest().permitAll())
+                        authorizeRequests
+                                .requestMatchers("/signin", "/signup").permitAll()
+                                .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
-                .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
-                .csrf(customizer ->
-                        customizer.disable())
-                .sessionManagement((session) ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(IF_REQUIRED) //
                 )
                 .build();
     }
@@ -53,7 +55,7 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -68,6 +70,5 @@ public class SecurityConfiguration {
         authProvider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         return authProvider;
     }
-
 
 }

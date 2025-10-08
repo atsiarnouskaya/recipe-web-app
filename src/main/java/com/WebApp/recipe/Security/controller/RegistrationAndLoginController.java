@@ -2,9 +2,12 @@ package com.WebApp.recipe.Security.controller;
 
 import com.WebApp.recipe.Security.DTOs.UserRequest;
 import com.WebApp.recipe.Security.DTOs.UserResponse;
-import com.WebApp.recipe.Security.UsersDetailsService;
+import com.WebApp.recipe.Security.exception.UserAlreadyExistsException;
 import com.WebApp.recipe.Security.service.UserService;
-import org.springframework.security.authentication.BadCredentialsException;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -18,43 +21,52 @@ import java.util.Optional;
 public class RegistrationAndLoginController {
 
     private final UserService userService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);
 
-    public RegistrationAndLoginController(UserService userService, UsersDetailsService usersDetailsService) {
+    @Autowired
+    public RegistrationAndLoginController(UserService userService) {
         this.userService = userService;
     }
 
 
-//    @PostMapping("/signup")
-//    public UserResponse registerUser(@RequestBody UserRequest userRequest) throws UserAlreadyExistsException {
-//        User user = new User(true, userRequest.getUsername(), userRequest.getPassword());
-//
-//        try {
-//            user = userService.signUpUser(user);
-//        }
-//        catch (UserAlreadyExistsException e) {
-//            throw new UserAlreadyExistsException(e.getMessage());
-//        }
-//
-//        return new UserResponse(user.getId(), user.getUsername());
-//    }
+    @PostMapping("/signup")
+    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest userRequest) throws UserAlreadyExistsException {
+        UserResponse userResponse;
+        try {
+            userResponse = userService.signUpUser(userRequest);
+        }
+        catch (UserAlreadyExistsException e) {
+            throw new UserAlreadyExistsException(e.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
 
     @PostMapping("/signin")
-    public UserResponse signin(@RequestBody UserRequest userRequest) throws UsernameNotFoundException {
+    public ResponseEntity<UserResponse> signin(@RequestBody UserRequest userRequest,
+                                               HttpSession session) throws UsernameNotFoundException {
+
         Optional<UserResponse> userResponseOptional = userService.validateUser(userRequest.getUsername(), userRequest.getPassword());
+
         if (userResponseOptional.isPresent()) {
-            System.out.println(userResponseOptional.get().getUsername());
-            return userResponseOptional.get();
+
+            session.setAttribute("user", userResponseOptional.get().getUsername());
+            session.setMaxInactiveInterval(30 * 60);
+            return ResponseEntity.ok(userResponseOptional.get());
         }
-        throw new BadCredentialsException("Invalid username or password");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpSession session) {
 
-//    @GetMapping("/me")
-//    public UserResponse me(Principal userAuth) {
-//        User user = userService.getUserByUsername(userAuth.getName());
-//
-//        return new UserResponse(user.getId(), user.getUsername());
-//    }
+        if (session != null) {
+            session.removeAttribute("user");
+            session.invalidate();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

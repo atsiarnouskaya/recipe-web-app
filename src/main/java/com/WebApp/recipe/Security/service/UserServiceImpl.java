@@ -59,7 +59,6 @@ public class UserServiceImpl implements UserService {
                     Optional.of(new UserResponse(user.get().getId(), user.get().getUsername()))
                         :
                     Optional.empty();
-
         }
         throw new UsernameNotFoundException("User not found");
     }

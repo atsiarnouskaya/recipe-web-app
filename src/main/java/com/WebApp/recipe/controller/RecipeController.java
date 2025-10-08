@@ -12,6 +12,7 @@ import com.WebApp.recipe.service.CategoryService;
 import com.WebApp.recipe.service.IngredientService;
 import com.WebApp.recipe.service.RecipeService;
 import com.WebApp.recipe.service.UnitService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +34,9 @@ public class RecipeController {
 
     @PostMapping("/addRecipe")
     public RecipeResponse addRecipe(@RequestBody RecipeRequest recipeRequest,
-                                    @AuthenticationPrincipal UserDetails userDetails) {
+                                    @AuthenticationPrincipal UserDetails userDetails, HttpSession session) {
+
+        System.out.println(session.getAttribute("user"));
         //String username = userDetails.getUsername();
         recipeRequest.setUsername("nastya");
         return recipeService.save(recipeRequest);
@@ -45,7 +48,9 @@ public class RecipeController {
     }
 
     @GetMapping("/recipes")
-    public List<RecipeResponse> getAllRecipes() {
+    public List<RecipeResponse> getAllRecipes(HttpSession session) {
+        System.out.println(session.getAttribute("user"));
+        System.out.println("getAllRecipes");
         return recipeService.getRecipes();
     }
 
