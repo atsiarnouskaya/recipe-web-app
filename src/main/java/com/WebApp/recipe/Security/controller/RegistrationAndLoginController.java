@@ -58,15 +58,15 @@ public class RegistrationAndLoginController {
 
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpSession session) {
-
-        if (session != null) {
-            session.removeAttribute("user");
-            session.invalidate();
-        }
-
-        return ResponseEntity.noContent().build();
-    }
+//    @PostMapping("/logout")
+//    public ResponseEntity<Void> logout(HttpSession session) {
+//
+//        if (session != null) {
+//            session.removeAttribute("user");
+//            session.invalidate();
+//        }
+//
+//        return ResponseEntity.noContent().build();
+//    }
 
 }

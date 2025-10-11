@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-//A service to get credentials of a user by its username
 @Service
 public class UsersDetailsService implements UserDetailsService {
 

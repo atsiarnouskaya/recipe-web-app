@@ -41,6 +41,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/signin", "/signup").permitAll()
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
+                .logout(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
