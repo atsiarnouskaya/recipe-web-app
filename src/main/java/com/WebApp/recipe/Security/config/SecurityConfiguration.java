@@ -1,17 +1,24 @@
 package com.WebApp.recipe.Security.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,11 +26,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
-
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     private final UserDetailsService userDetailsService;
@@ -38,19 +44,27 @@ public class SecurityConfiguration {
         return http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/signin", "/signup").permitAll()
+                                .requestMatchers("/login", "/signup", "/logout", "/logoutSuccess").permitAll()
                                 .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .logout(Customizer.withDefaults())
-                .formLogin(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(IF_REQUIRED) //
-                )
+                .authenticationProvider(authenticationProvider())
+                .securityContext(context -> context.securityContextRepository(securityContextRepository()))
+                .requestCache(RequestCacheConfigurer::disable)
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                        .logoutSuccessUrl("/logoutSuccess")
+                        )
                 .build();
     }
 
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -72,4 +86,9 @@ public class SecurityConfiguration {
         return authProvider;
     }
 
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 }

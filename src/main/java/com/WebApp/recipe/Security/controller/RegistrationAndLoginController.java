@@ -3,11 +3,15 @@ package com.WebApp.recipe.Security.controller;
 import com.WebApp.recipe.Security.DTOs.UserRequest;
 import com.WebApp.recipe.Security.DTOs.UserResponse;
 import com.WebApp.recipe.Security.exception.UserAlreadyExistsException;
+import com.WebApp.recipe.Security.service.AuthService;
 import com.WebApp.recipe.Security.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -21,10 +25,12 @@ import java.util.Optional;
 public class RegistrationAndLoginController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @Autowired
-    public RegistrationAndLoginController(UserService userService) {
+    public RegistrationAndLoginController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
 
@@ -41,32 +47,31 @@ public class RegistrationAndLoginController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<UserResponse> signin(@RequestBody UserRequest userRequest,
-                                               HttpSession session) throws UsernameNotFoundException {
-
-        Optional<UserResponse> userResponseOptional = userService.validateUser(userRequest.getUsername(), userRequest.getPassword());
-
-        if (userResponseOptional.isPresent()) {
-
-            session.setAttribute("user", userResponseOptional.get().getUsername());
-            session.setMaxInactiveInterval(30 * 60);
-            return ResponseEntity.ok(userResponseOptional.get());
+    @PostMapping("/login")
+    public ResponseEntity<UserResponse> loginUser(@RequestBody UserRequest userRequest,
+                                                  HttpServletRequest request,
+                                                  HttpServletResponse response) throws UsernameNotFoundException {
+        ResponseEntity<Boolean> isAuthenticated = authService.authenticate(userRequest.getUsername(), userRequest.getPassword(), request, response);
+        if (isAuthenticated.getBody()) {
+            return ResponseEntity.status(200).build();
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-//    @PostMapping("/logout")
-//    public ResponseEntity<Void> logout(HttpSession session) {
-//
-//        if (session != null) {
-//            session.removeAttribute("user");
-//            session.invalidate();
-//        }
-//
-//        return ResponseEntity.noContent().build();
-//    }
+    @GetMapping("/logoutSuccess")
+    public String logoutSuccess() {
+        return "logoutSuccess";
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpSession session) {
+        System.out.println("Logging out");
+        if (session != null) {
+            session.invalidate();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
 
 }
