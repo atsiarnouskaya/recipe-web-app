@@ -36,9 +36,8 @@ public class RecipeController {
     public RecipeResponse addRecipe(@RequestBody RecipeRequest recipeRequest,
                                     @AuthenticationPrincipal UserDetails userDetails, HttpSession session) {
 
-        System.out.println(session.getAttribute("user"));
-        //String username = userDetails.getUsername();
-        recipeRequest.setUsername("nastya");
+        String username = userDetails.getUsername();
+        recipeRequest.setUsername(username);
         return recipeService.save(recipeRequest);
     }
 
