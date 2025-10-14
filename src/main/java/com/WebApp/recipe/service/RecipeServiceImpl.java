@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -246,7 +247,7 @@ public class RecipeServiceImpl implements RecipeService {
 //
 //        }
 
-        Unit unit = new Unit (ingredient.getUnit());
+        Unit unit = new Unit (ingredient.getStartUnit());
         Double amount = ingredient.getAmount();
 
         Unit unitFromDB = unitService.findByNameElseAdd(unit);
@@ -272,7 +273,7 @@ public class RecipeServiceImpl implements RecipeService {
         RecipeIngredient recipeIngredient;
         if (recipeIngredientIfExists.isEmpty()) {
             recipeIngredient = new RecipeIngredient(recipeFromDb, ing,
-                    amount, unit);
+                    amount, unitFromDB);
         } else {
             recipeIngredient = recipeIngredientIfExists.get();
         }

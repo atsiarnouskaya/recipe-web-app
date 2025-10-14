@@ -14,8 +14,7 @@ public class IngredientRequest {
     private String ingredientName;
     private String categoryName;
     private Double amount;
-    private String unit;
-//    private String startUnit;
-//    private String endUnit;
+    private String startUnit;
+    private String endUnit;
     private double adjustingFactor;
 }
