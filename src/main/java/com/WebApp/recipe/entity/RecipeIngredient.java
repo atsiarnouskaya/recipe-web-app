@@ -15,12 +15,14 @@ public class RecipeIngredient {
     private RecipeIngredientId id;
 
     @MapsId("recipeId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.MERGE, CascadeType.PERSIST,
+            CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "recipe_id", nullable = false)
     private Recipe recipe;
 
     @MapsId("ingredientId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.MERGE, CascadeType.PERSIST,
+            CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "ingredient_id", nullable = false)
     private Ingredient ingredient;
 

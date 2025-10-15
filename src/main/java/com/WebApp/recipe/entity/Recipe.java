@@ -44,8 +44,7 @@ public class Recipe {
     private boolean isDeleted;
 
     @OneToMany(mappedBy = "recipe",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST,
-                    CascadeType.REFRESH, CascadeType.DETACH},
+            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             orphanRemoval = true)
     private List<RecipeIngredient> ingredients;

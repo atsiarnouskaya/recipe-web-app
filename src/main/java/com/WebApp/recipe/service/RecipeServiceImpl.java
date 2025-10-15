@@ -105,10 +105,14 @@ public class RecipeServiceImpl implements RecipeService {
             recipe.setVideo(recipeFromRequest.getVideo());
         }
 
-        recipe.getIngredients().clear();
-        recipe = recipeRepository.save(recipe);
+        recipe.getIngredients().clear(); //тут все удаляется каскад или орфан делит
+        //recipe = recipeRepository.save(recipe);
 
         for (var ingredient : recipeRequest.getIngredients()) {
+
+            Optional<Ingredient> ingFromDB = ingredientRepository.findFirstByName(ingredient.getIngredientName());
+            System.out.println("BEFORE, searching for ingredient: " + ingredient.getIngredientName());
+            System.out.println("BEFORE " + ingFromDB.isPresent());
             addIngredientsToRecipe(ingredient, recipe);
         }
 
@@ -196,6 +200,9 @@ public class RecipeServiceImpl implements RecipeService {
 
         //create or find an ingredient in the db
         Optional<Ingredient> ingFromDB = ingredientRepository.findFirstByName(ingredient.getIngredientName());
+
+        System.out.println("AFTER, searching for ingredient: " + ingredient.getIngredientName());
+        System.out.println("AFTER " + ingFromDB.isPresent());
 
         Ingredient ing;
         if (ingFromDB.isPresent()) {
