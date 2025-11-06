@@ -36,7 +36,7 @@ public class Recipe {
     @Column(name = "instructions")
     private String instructions;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private Video video;
 

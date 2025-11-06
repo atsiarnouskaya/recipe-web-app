@@ -1,5 +1,6 @@
 package com.WebApp.recipe.repository;
 
+import com.WebApp.recipe.Security.entity.User;
 import com.WebApp.recipe.entity.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
     Optional<Recipe> findRecipeByTitle(String title);
 
     Optional<Recipe> findRecipeById(int id);
+
+    List<Recipe> findRecipesByUser(User user);
 }

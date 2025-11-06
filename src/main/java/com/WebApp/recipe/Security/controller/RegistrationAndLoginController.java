@@ -52,8 +52,9 @@ public class RegistrationAndLoginController {
                                                   HttpServletRequest request,
                                                   HttpServletResponse response) throws UsernameNotFoundException {
         ResponseEntity<Boolean> isAuthenticated = authService.authenticate(userRequest.getUsername(), userRequest.getPassword(), request, response);
-        if (isAuthenticated.getBody()) {
-            return ResponseEntity.status(200).build();
+        if (Boolean.TRUE.equals(isAuthenticated.getBody())) {
+            UserResponse user = userService.getUserByUsername(userRequest.getUsername());
+            return ResponseEntity.ok(user);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

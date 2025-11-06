@@ -1,5 +1,6 @@
 package com.WebApp.recipe.service;
 
+import com.WebApp.recipe.Security.entity.User;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
@@ -21,4 +22,6 @@ public interface RecipeService {
     List<RecipeResponse> getRecipesByIngredients(List<IngredientRequest> ingredients);
 
     RecipeResponse deleteRecipe(int id);
+
+    List<RecipeResponse> getRecipesByAuthor(int userId);
 }

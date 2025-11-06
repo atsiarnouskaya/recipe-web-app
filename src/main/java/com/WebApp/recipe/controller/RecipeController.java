@@ -48,8 +48,6 @@ public class RecipeController {
 
     @GetMapping("/recipes")
     public List<RecipeResponse> getAllRecipes(HttpSession session) {
-        System.out.println(session.getAttribute("user"));
-        System.out.println("getAllRecipes");
         return recipeService.getRecipes();
     }
 
@@ -61,6 +59,11 @@ public class RecipeController {
     @GetMapping("/getRecipesByIngredients")
     public List<RecipeResponse> getAllRecipesByIngredients(@RequestBody List<IngredientRequest> ingredients) {
         return recipeService.getRecipesByIngredients(ingredients);
+    }
+
+    @GetMapping("/recipes/{userId}")
+    public List<RecipeResponse>  getRecipesByUserId(@PathVariable int userId) {
+        return recipeService.getRecipesByAuthor(userId);
     }
 
     @PutMapping("deleteRecipe/{id}")

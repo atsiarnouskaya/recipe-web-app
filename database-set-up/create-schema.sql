@@ -112,5 +112,20 @@ CREATE TABLE `recipes_ingredients` (
 		ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+CREATE TABLE `users_fav_recipes` (
+	`recipe_id` INT NOT NULL,
+	`user_id` INT NOT NULL,
+    
+     PRIMARY KEY (`recipe_id`, `user_id`),
+    
+     CONSTRAINT `FK_FAV_RECIPE` FOREIGN KEY (`recipe_id`) 
+		REFERENCES `recipes` (`id`) 
+		ON DELETE NO ACTION ON UPDATE NO ACTION,
+        
+	 CONSTRAINT `FK_FAV_USER` FOREIGN KEY (`user_id`) 
+		REFERENCES `user` (`id`) 
+		ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
 
 

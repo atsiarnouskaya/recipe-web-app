@@ -105,14 +105,9 @@ public class RecipeServiceImpl implements RecipeService {
             recipe.setVideo(recipeFromRequest.getVideo());
         }
 
-        recipe.getIngredients().clear(); //тут все удаляется каскад или орфан делит
-        //recipe = recipeRepository.save(recipe);
+        recipe.getIngredients().clear();
 
         for (var ingredient : recipeRequest.getIngredients()) {
-
-            Optional<Ingredient> ingFromDB = ingredientRepository.findFirstByName(ingredient.getIngredientName());
-            System.out.println("BEFORE, searching for ingredient: " + ingredient.getIngredientName());
-            System.out.println("BEFORE " + ingFromDB.isPresent());
             addIngredientsToRecipe(ingredient, recipe);
         }
 
@@ -127,21 +122,22 @@ public class RecipeServiceImpl implements RecipeService {
     public RecipeResponse save(RecipeRequest recipeRequest) {
         Recipe recipe = mapper.toRecipe(recipeRequest);
         String username = recipeRequest.getUsername();
-
-        Optional<User> user = userRepository.findUserByUsername(username);
-        if (user.isPresent()) {
-            recipe.setUser(user.get());
-        } else {
-            recipe.setUser(null);
-        }
-
-
         Optional<Recipe> recipeFromDB = recipeRepository.findRecipeByTitle(recipeRequest.getTitle());
-        if (recipeFromDB.isPresent()) {
-            recipe.setId(recipeFromDB.get().getId());
-        }
 
-        recipeRepository.save(recipe);
+        if (recipeFromDB.isPresent()) {
+            recipe = recipeFromDB.get();
+            recipe.setDeleted(false);
+        }
+        else {
+            Optional<User> user = userRepository.findUserByUsername(username);
+            if (user.isPresent()) {
+                recipe.setUser(user.get());
+            } else {
+                recipe.setUser(null);
+            }
+            recipe.setDeleted(false);
+            recipeRepository.save(recipe);
+        }
 
         for (var ingredient : recipeRequest.getIngredients()) {
 
@@ -194,6 +190,25 @@ public class RecipeServiceImpl implements RecipeService {
             throw new RuntimeException("Recipe not found with id: " + id);
         }
         return mapper.toRecipeResponseDTO(recipeRepository.save(recipeFromDB.get()));
+    }
+
+    @Override
+    public List<RecipeResponse> getRecipesByAuthor(int userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        User user = userOptional.get();
+        List<Recipe> recipesByUser = recipeRepository.findRecipesByUser(user);
+        List<RecipeResponse> recipeResponses = new ArrayList<>();
+
+        if (!recipesByUser.isEmpty()) {
+            for (Recipe recipe : recipesByUser) {
+                recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+            }
+            return recipeResponses;
+        }
+        throw new RuntimeException("Recipe not found with author: " + user.getUsername());
     }
 
     private void addIngredientsToRecipe(IngredientRequest ingredient, Recipe recipe) {
@@ -268,24 +283,23 @@ public class RecipeServiceImpl implements RecipeService {
         amount = unitService.adjustAmount(amount, adjustingFactor);
 
         Optional<Recipe> recipeFromDbOpt = recipeRepository.findById(recipe.getId());
-        Recipe recipeFromDb;
         if (recipeFromDbOpt.isPresent()) {
-            recipeFromDb = recipeFromDbOpt.get();
+            recipe = recipeFromDbOpt.get();
         } else {
             throw new RuntimeException("Recipe not found with id: " + recipe.getId());
         }
 
-        Optional<RecipeIngredient> recipeIngredientIfExists = recipeIngredientRepository.findByRecipeAndIngredient(recipeFromDb, ing);
+        Optional<RecipeIngredient> recipeIngredientIfExists = recipeIngredientRepository.findByRecipeAndIngredient(recipe, ing);
 
         RecipeIngredient recipeIngredient;
         if (recipeIngredientIfExists.isEmpty()) {
-            recipeIngredient = new RecipeIngredient(recipeFromDb, ing,
+            recipeIngredient = new RecipeIngredient(recipe, ing,
                     amount, unitFromDB);
         } else {
             recipeIngredient = recipeIngredientIfExists.get();
         }
 
-        recipeFromDb.addIngredient(recipeIngredient);
+        recipe.addIngredient(recipeIngredient);
     }
 
 }
