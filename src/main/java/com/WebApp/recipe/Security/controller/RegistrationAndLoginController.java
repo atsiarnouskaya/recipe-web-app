@@ -40,8 +40,8 @@ public class RegistrationAndLoginController {
         try {
             userResponse = userService.signUpUser(userRequest);
         }
-        catch (UserAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        catch (UserAlreadyExistsException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserResponse(0, null, e.getMessage()));
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);

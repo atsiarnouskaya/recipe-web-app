@@ -34,14 +34,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse signUpUser(UserRequest user) throws UserAlreadyExistsException {
-        Optional<User> userOptional = userRepository.findUserByUsername(user.getUsername());
+    public UserResponse signUpUser(UserRequest user) throws UserAlreadyExistsException, IllegalArgumentException {
+        if (user.getPassword().isEmpty() || user.getUsername().isEmpty() || user.getPassword().isBlank() || user.getUsername().isBlank()) {
+            throw new IllegalArgumentException("Username and password cannot be empty");
+        }
+        if (user.getUsername().length() > 50 || user.getPassword().length() > 50) {
+            throw new IllegalArgumentException("Username and password must not be longer than 50 characters");
+        }
+        Optional<User> userOptional = userRepository.findUserByUsername(user.getUsername().strip());
         User newUser;
         if (userOptional.isPresent()) {
             newUser = userOptional.get();
             throw new UserAlreadyExistsException("User with username: " + newUser.getUsername() + " already exists");
         } else {
-            newUser = new User(true, user.getUsername(), bCryptPasswordEncoder.encode(user.getPassword()));
+            newUser = new User(true, user.getUsername().strip(), bCryptPasswordEncoder.encode(user.getPassword().strip()));
+            System.out.println(user.getPassword().strip());
             newUser.setRoles(List.of(new Role("ROLE_USER")));
             newUser = userRepository.save(newUser);
             return new UserResponse(newUser.getId(), newUser.getUsername());
