@@ -2,6 +2,7 @@ package com.WebApp.recipe.Security.service;
 
 import com.WebApp.recipe.Security.DTOs.UserRequest;
 import com.WebApp.recipe.Security.DTOs.UserResponse;
+import com.WebApp.recipe.Security.ValidationInfo;
 import com.WebApp.recipe.Security.entity.User;
 import com.WebApp.recipe.Security.exception.UserAlreadyExistsException;
 
@@ -13,6 +14,6 @@ public interface UserService {
 
     UserResponse signUpUser(UserRequest user) throws UserAlreadyExistsException;
 
-    Optional<UserResponse> validateUser(String username, String password);
+    ValidationInfo validateUserInfo(String username, String password);
 
 }

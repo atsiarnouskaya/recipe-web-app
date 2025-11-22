@@ -2,6 +2,7 @@ package com.WebApp.recipe.Security.controller;
 
 import com.WebApp.recipe.Security.DTOs.UserRequest;
 import com.WebApp.recipe.Security.DTOs.UserResponse;
+import com.WebApp.recipe.Security.ValidationInfo;
 import com.WebApp.recipe.Security.exception.UserAlreadyExistsException;
 import com.WebApp.recipe.Security.service.AuthService;
 import com.WebApp.recipe.Security.service.UserService;
@@ -47,11 +48,19 @@ public class RegistrationAndLoginController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/signin")
     public ResponseEntity<UserResponse> loginUser(@RequestBody UserRequest userRequest,
                                                   HttpServletRequest request,
                                                   HttpServletResponse response) throws UsernameNotFoundException {
+
+        ValidationInfo validationInfo = userService.validateUserInfo(userRequest.getUsername(), userRequest.getPassword());
+        System.out.println(validationInfo);
+        if (!validationInfo.status()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         ResponseEntity<Boolean> isAuthenticated = authService.authenticate(userRequest.getUsername(), userRequest.getPassword(), request, response);
+
         if (Boolean.TRUE.equals(isAuthenticated.getBody())) {
             UserResponse user = userService.getUserByUsername(userRequest.getUsername());
             return ResponseEntity.ok(user);
