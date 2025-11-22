@@ -41,7 +41,7 @@ public class RegistrationAndLoginController {
             userResponse = userService.signUpUser(userRequest);
         }
         catch (UserAlreadyExistsException e) {
-            throw new UserAlreadyExistsException(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);

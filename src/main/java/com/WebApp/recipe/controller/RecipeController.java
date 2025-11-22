@@ -1,6 +1,8 @@
 package com.WebApp.recipe.controller;
 
+import com.WebApp.recipe.Security.DTOs.UserResponse;
 import com.WebApp.recipe.Security.entity.User;
+import com.WebApp.recipe.Security.service.UserService;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientResponse;
 import com.WebApp.recipe.dto.Mapper;
@@ -19,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -26,10 +29,12 @@ import java.util.List;
 public class RecipeController {
 
     private final RecipeService recipeService;
+    private final UserService userService;
 
     @Autowired
-    public RecipeController(RecipeService recipeService) {
+    public RecipeController(RecipeService recipeService, UserService userService) {
         this.recipeService = recipeService;
+        this.userService = userService;
     }
 
     @PostMapping("/addRecipe")
@@ -49,6 +54,22 @@ public class RecipeController {
     @GetMapping("/recipes")
     public List<RecipeResponse> getAllRecipes(HttpSession session) {
         return recipeService.getRecipes();
+    }
+
+    @GetMapping("/{userId}/favRecipes")
+    public List<RecipeResponse> getFavRecipes(@PathVariable int userId) {
+        return recipeService.userFavRecipes(userId);
+    }
+
+    @PutMapping("/fav")
+    public RecipeResponse favRecipe(@RequestBody int recipeId,
+                                    @AuthenticationPrincipal UserDetails userDetails) {
+        UserResponse user = userService.getUserByUsername(userDetails.getUsername());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        RecipeResponse favedRecipe = recipeService.likeRecipe(recipeId, user.getId());
+        return favedRecipe;
     }
 
     @PutMapping("/recipes/{id}")

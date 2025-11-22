@@ -43,6 +43,14 @@ public class Recipe {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(
+            name = "users_fav_recipes",
+            joinColumns = @JoinColumn (name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name="user_id")
+    )
+    List<User> users = new ArrayList<>();
+
     @OneToMany(mappedBy = "recipe",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
@@ -71,5 +79,12 @@ public class Recipe {
 
     public boolean getIsDeleted() {
         return isDeleted;
+    }
+
+    public void addUsersLike(User user) {
+        if(users == null) {
+            users = new ArrayList<>();
+        }
+        users.add(user);
     }
 }

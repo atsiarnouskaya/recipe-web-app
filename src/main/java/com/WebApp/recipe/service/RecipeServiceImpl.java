@@ -179,7 +179,23 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeResponses;
     }
 
+
     @Override
+    @Transactional
+    public RecipeResponse likeRecipe(int recipeId, int userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Recipe> recipeOpt = recipeRepository.findById(recipeId);
+        if (userOpt.isEmpty() || recipeOpt.isEmpty()) {
+            throw new RuntimeException("User or recipe not found");
+        }
+        Recipe recipe = recipeOpt.get();
+        recipe.addUsersLike(userOpt.get());
+        recipeRepository.save(recipe);
+        return mapper.toRecipeResponseDTO(recipe);
+    }
+
+    @Override
+    @Transactional
     public RecipeResponse deleteRecipe(int id) {
         Optional<Recipe> recipeFromDB = recipeRepository.findById(id);
 
@@ -204,20 +220,31 @@ public class RecipeServiceImpl implements RecipeService {
 
         if (!recipesByUser.isEmpty()) {
             for (Recipe recipe : recipesByUser) {
-                recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+                if(!recipe.getIsDeleted()) {
+                    recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+                }
             }
             return recipeResponses;
         }
         throw new RuntimeException("Recipe not found with author: " + user.getUsername());
     }
 
+    @Override
+    public List<RecipeResponse> userFavRecipes(int userId) {
+        List<Recipe> recipes = userRepository.findRecipesByUserId(userId);
+        List<RecipeResponse> recipeResponses = new ArrayList<>();
+        if (!recipes.isEmpty()) {
+            for (Recipe recipe : recipes) {
+                recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
+            }
+        }
+        return recipeResponses;
+    }
+
     private void addIngredientsToRecipe(IngredientRequest ingredient, Recipe recipe) {
 
         //create or find an ingredient in the db
         Optional<Ingredient> ingFromDB = ingredientRepository.findFirstByName(ingredient.getIngredientName());
-
-        System.out.println("AFTER, searching for ingredient: " + ingredient.getIngredientName());
-        System.out.println("AFTER " + ingFromDB.isPresent());
 
         Ingredient ing;
         if (ingFromDB.isPresent()) {
@@ -271,16 +298,12 @@ public class RecipeServiceImpl implements RecipeService {
 
         Unit unit = new Unit (ingredient.getStartUnit());
         Double amount = ingredient.getAmount();
+        if (amount < 0) {
+            amount = 0.0;
+        }
 
         Unit unitFromDB = unitService.findByNameElseAdd(unit);
 
-        Double adjustingFactor = ingredient.getAdjustingFactor();
-
-        if(adjustingFactor == 0.0) {
-            adjustingFactor = 1.0;
-        }
-
-        amount = unitService.adjustAmount(amount, adjustingFactor);
 
         Optional<Recipe> recipeFromDbOpt = recipeRepository.findById(recipe.getId());
         if (recipeFromDbOpt.isPresent()) {

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -49,5 +50,15 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Recipe> recipes;
+
+    @ManyToMany(mappedBy = "users")
+    List<Recipe> favoriteRecipes;
+
+    public void addFavoriteRecipe(Recipe recipe) {
+        if (this.favoriteRecipes == null) {
+            this.favoriteRecipes = new ArrayList<>();
+        }
+        this.favoriteRecipes.add(recipe);
+    }
 
 }

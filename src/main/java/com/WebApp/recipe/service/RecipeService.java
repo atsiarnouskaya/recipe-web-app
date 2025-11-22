@@ -24,4 +24,8 @@ public interface RecipeService {
     RecipeResponse deleteRecipe(int id);
 
     List<RecipeResponse> getRecipesByAuthor(int userId);
+
+    List<RecipeResponse> userFavRecipes(int userId);
+
+    RecipeResponse likeRecipe(int recipeId, int userId);
 }
