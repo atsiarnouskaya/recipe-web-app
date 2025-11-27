@@ -24,4 +24,9 @@ public class RecipeResponse {
     private int userId;
     private String username;
 
+    private String message;
+
+    public RecipeResponse(String message) {
+        this.message = message;
+    }
 }

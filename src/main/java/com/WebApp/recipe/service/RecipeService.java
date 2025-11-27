@@ -21,11 +21,13 @@ public interface RecipeService {
 
     List<RecipeResponse> getRecipesByIngredients(List<IngredientRequest> ingredients);
 
-    RecipeResponse deleteRecipe(int id);
+    RecipeResponse deleteRecipe(int id, String username);
 
     List<RecipeResponse> getRecipesByAuthor(int userId);
 
     List<RecipeResponse> userFavRecipes(int userId);
 
-    RecipeResponse likeRecipe(int recipeId, int userId);
+    RecipeResponse likeRecipe(int recipeId, String username);
+
+    RecipeResponse dislikeRecipe(int recipeId, String username);
 }

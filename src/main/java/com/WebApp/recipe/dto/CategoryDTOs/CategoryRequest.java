@@ -1,5 +1,8 @@
 package com.WebApp.recipe.dto.CategoryDTOs;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryRequest {
+
+    @NotBlank
+    @Size(min = 2, max = 50)
+    @Pattern(regexp = "^[a-zA-Z_-]+$")
     private String categoryName;
+
 }

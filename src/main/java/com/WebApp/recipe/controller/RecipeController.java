@@ -1,27 +1,22 @@
 package com.WebApp.recipe.controller;
 
 import com.WebApp.recipe.Security.DTOs.UserResponse;
-import com.WebApp.recipe.Security.entity.User;
 import com.WebApp.recipe.Security.service.UserService;
 import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
-import com.WebApp.recipe.dto.IngredientDTOs.IngredientResponse;
-import com.WebApp.recipe.dto.Mapper;
+import com.WebApp.recipe.dto.RecipeDTOs.FavRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
 import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
-import com.WebApp.recipe.entity.*;
-import com.WebApp.recipe.repository.UnitRepository;
-import com.WebApp.recipe.service.CategoryService;
-import com.WebApp.recipe.service.IngredientService;
 import com.WebApp.recipe.service.RecipeService;
-import com.WebApp.recipe.service.UnitService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -38,7 +33,7 @@ public class RecipeController {
     }
 
     @PostMapping("/addRecipe")
-    public RecipeResponse addRecipe(@RequestBody RecipeRequest recipeRequest,
+    public RecipeResponse addRecipe(@Valid @RequestBody RecipeRequest recipeRequest,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         String username = userDetails.getUsername();
@@ -52,7 +47,7 @@ public class RecipeController {
     }
 
     @GetMapping("/recipes")
-    public List<RecipeResponse> getAllRecipes(HttpSession session) {
+    public List<RecipeResponse> getAllRecipes() {
         return recipeService.getRecipes();
     }
 
@@ -62,19 +57,30 @@ public class RecipeController {
     }
 
     @PutMapping("/fav")
-    public RecipeResponse favRecipe(@RequestBody int recipeId,
-                                    @AuthenticationPrincipal UserDetails userDetails) {
-        UserResponse user = userService.getUserByUsername(userDetails.getUsername());
-        if (user == null) {
-            throw new RuntimeException("User not found");
+    public ResponseEntity<RecipeResponse> favRecipe(@RequestBody FavRequest favRequest,
+                                                    @AuthenticationPrincipal UserDetails userDetails) {
+        RecipeResponse favedRecipe;
+        try {
+            if (!favRequest.isLiked()) {
+                favedRecipe = recipeService.likeRecipe(favRequest.getRecipeId(), userDetails.getUsername());
+            } else {
+                favedRecipe = recipeService.dislikeRecipe(favRequest.getRecipeId(), userDetails.getUsername());
+            }
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        RecipeResponse favedRecipe = recipeService.likeRecipe(recipeId, user.getId());
-        return favedRecipe;
+        return ResponseEntity.ok(favedRecipe);
     }
 
     @PutMapping("/recipes/{id}")
-    public RecipeResponse updateRecipe(@PathVariable int id, @RequestBody RecipeRequest recipeRequest) {
-        return recipeService.updateRecipe(id, recipeRequest);
+    public ResponseEntity<RecipeResponse> updateRecipe(@PathVariable int id,
+                                                       @Valid @RequestBody RecipeRequest recipeRequest,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        if (!userDetails.getUsername().equals(recipeRequest.getUsername())) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(recipeService.updateRecipe(id, recipeRequest));
     }
 
     @GetMapping("/getRecipesByIngredients")
@@ -88,8 +94,15 @@ public class RecipeController {
     }
 
     @PutMapping("deleteRecipe/{id}")
-    public RecipeResponse deleteRecipe(@PathVariable int id) {
-        return recipeService.deleteRecipe(id);
+    public ResponseEntity<RecipeResponse> deleteRecipe(@PathVariable int id,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        RecipeResponse rp;
+        try {
+            rp = recipeService.deleteRecipe(id, userDetails.getUsername());
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(rp);
     }
 
 }

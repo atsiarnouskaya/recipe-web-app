@@ -11,6 +11,7 @@ import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
 import com.WebApp.recipe.entity.*;
 import com.WebApp.recipe.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,13 +51,6 @@ public class RecipeServiceImpl implements RecipeService {
         this.userRepository = userRepository;
         this.mapper = mapper;
     }
-
-      /*
-    POST: Creates a new resource (overridden, "/custom/addRecipe")
-    GET: Reads/Retrieve a resource (overridden, "/custom/recipes", "/custom/recipes/{id}")
-    PUT: Updates an existing resource ("/recipes/{id}")
-    DELETE: Deletes a resource ("/recipes/{id}")
-    */
 
     @Override
     public RecipeResponse getRecipeById(int id) {
@@ -182,11 +176,11 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
-    public RecipeResponse likeRecipe(int recipeId, int userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
+    public RecipeResponse likeRecipe(int recipeId, String username) {
+        Optional<User> userOpt = userRepository.findUserByUsername(username);
         Optional<Recipe> recipeOpt = recipeRepository.findById(recipeId);
         if (userOpt.isEmpty() || recipeOpt.isEmpty()) {
-            throw new RuntimeException("User or recipe not found");
+            throw new IllegalArgumentException("User or Recipe not found");
         }
         Recipe recipe = recipeOpt.get();
         recipe.addUsersLike(userOpt.get());
@@ -196,10 +190,27 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
-    public RecipeResponse deleteRecipe(int id) {
+    public RecipeResponse dislikeRecipe(int recipeId, String username) {
+        Optional<User> userOpt = userRepository.findUserByUsername(username);
+        Optional<Recipe> recipeOpt = recipeRepository.findById(recipeId);
+        if (userOpt.isEmpty() || recipeOpt.isEmpty()) {
+            throw new IllegalArgumentException("User or Recipe not found");
+        }
+        Recipe recipe = recipeOpt.get();
+        recipe.deleteUsersLike(userOpt.get());
+        recipeRepository.save(recipe);
+        return mapper.toRecipeResponseDTO(recipe);
+    }
+
+    @Override
+    @Transactional
+    public RecipeResponse deleteRecipe(int id, String username) {
         Optional<Recipe> recipeFromDB = recipeRepository.findById(id);
 
         if (recipeFromDB.isPresent()) {
+            if (!username.equals(recipeFromDB.get().getUser().getUsername())) {
+                throw new AccessDeniedException("You are not allowed to delete this recipe");
+            }
             recipeFromDB.get().deleteRecipe();
         }
         else {

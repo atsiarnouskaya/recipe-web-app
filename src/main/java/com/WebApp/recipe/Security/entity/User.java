@@ -22,12 +22,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotNull(message = "is required")
     @Column(name = "username")
     private String username;
 
-    @NotNull(message = "is required")
-    @Size(min = 8, message = "must be longer than 8 characters")
     @Column(name = "password")
     private String password;
 

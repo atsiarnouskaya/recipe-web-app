@@ -20,11 +20,6 @@ public class CategoryController {
         this.mapper = mapper;
     }
 
-    @PostMapping("/categories")
-    public CategoryResponse addCategory(@RequestBody CategoryRequest categoryRequest) {
-        return categoryService.addCategory(categoryRequest);
-    }
-
     @PutMapping("/softDelete")
     public CategoryResponse deleteCategory(@RequestBody CategoryRequest categoryRequest) {
         categoryService.deleteCategory(categoryRequest);

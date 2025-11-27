@@ -87,4 +87,10 @@ public class Recipe {
         }
         users.add(user);
     }
+
+    public void deleteUsersLike(User user) {
+        if(users != null) {
+            users.remove(user);
+        }
+    }
 }

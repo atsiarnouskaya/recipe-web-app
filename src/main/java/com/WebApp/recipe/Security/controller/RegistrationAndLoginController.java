@@ -2,24 +2,19 @@ package com.WebApp.recipe.Security.controller;
 
 import com.WebApp.recipe.Security.DTOs.UserRequest;
 import com.WebApp.recipe.Security.DTOs.UserResponse;
-import com.WebApp.recipe.Security.ValidationInfo;
 import com.WebApp.recipe.Security.exception.UserAlreadyExistsException;
 import com.WebApp.recipe.Security.service.AuthService;
 import com.WebApp.recipe.Security.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.web.bind.annotation.*;
-
-
-import java.util.Optional;
 
 
 @RestController
@@ -36,7 +31,7 @@ public class RegistrationAndLoginController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest userRequest) throws UserAlreadyExistsException {
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest userRequest) {
         UserResponse userResponse;
         try {
             userResponse = userService.signUpUser(userRequest);
@@ -49,15 +44,9 @@ public class RegistrationAndLoginController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<UserResponse> loginUser(@RequestBody UserRequest userRequest,
+    public ResponseEntity<UserResponse> loginUser(@Valid @RequestBody UserRequest userRequest,
                                                   HttpServletRequest request,
                                                   HttpServletResponse response) throws UsernameNotFoundException {
-
-        ValidationInfo validationInfo = userService.validateUserInfo(userRequest.getUsername(), userRequest.getPassword());
-        System.out.println(validationInfo);
-        if (!validationInfo.status()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
 
         ResponseEntity<Boolean> isAuthenticated = authService.authenticate(userRequest.getUsername(), userRequest.getPassword(), request, response);
 

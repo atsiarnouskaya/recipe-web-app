@@ -21,7 +21,7 @@ public class Mapper {
 
         return new RecipeResponse(recipe.getId(), recipe.getTitle(), recipe.getShortDescription(),
                                  recipe.getInstructions(), ingredients,
-                                 recipe.getVideo().getUrl(), recipe.getUser().getId(), recipe.getUser().getUsername());
+                                 recipe.getVideo().getUrl(), recipe.getUser().getId(), recipe.getUser().getUsername(), null);
     }
 
     public Recipe toRecipe (RecipeRequest recipeRequest) {
