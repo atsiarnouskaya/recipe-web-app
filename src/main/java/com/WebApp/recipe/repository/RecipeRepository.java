@@ -25,7 +25,5 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
 
     Optional<Recipe> findRecipeByTitle(String title);
 
-    Optional<Recipe> findRecipeById(int id);
-
     List<Recipe> findRecipesByUser(User user);
 }

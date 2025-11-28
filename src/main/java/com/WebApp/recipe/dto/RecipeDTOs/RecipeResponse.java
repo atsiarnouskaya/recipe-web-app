@@ -25,8 +25,4 @@ public class RecipeResponse {
     private String username;
 
     private String message;
-
-    public RecipeResponse(String message) {
-        this.message = message;
-    }
 }

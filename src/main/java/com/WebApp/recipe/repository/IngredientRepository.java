@@ -18,5 +18,4 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Integer>
             "WHERE i.category_id = :categoryId", nativeQuery = true)
     List<Ingredient> findAllByCategoryId(@Param("categoryId") Integer categoryId);
 
-    Optional<Ingredient> findIngredientByName(String name);
 }

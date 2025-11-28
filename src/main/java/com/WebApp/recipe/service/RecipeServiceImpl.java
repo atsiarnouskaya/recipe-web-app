@@ -72,7 +72,6 @@ public class RecipeServiceImpl implements RecipeService {
         for (Recipe recipe : recipes) {
             if (!recipe.getIsDeleted()) {
                 RecipeResponse recipeResponse = mapper.toRecipeResponseDTO(recipe);
-                System.out.println(recipeResponse.toString());
                 recipeResponses.add(recipeResponse);
             }
         }
@@ -127,7 +126,7 @@ public class RecipeServiceImpl implements RecipeService {
             if (user.isPresent()) {
                 recipe.setUser(user.get());
             } else {
-                recipe.setUser(null);
+                return null;
             }
             recipe.setDeleted(false);
             recipeRepository.save(recipe);
@@ -237,7 +236,7 @@ public class RecipeServiceImpl implements RecipeService {
             }
             return recipeResponses;
         }
-        throw new RuntimeException("Recipe not found with author: " + user.getUsername());
+        return null;
     }
 
     @Override
@@ -281,33 +280,8 @@ public class RecipeServiceImpl implements RecipeService {
         //set a category for a found or created ingredient
         ing.setCategory(category);
 
-//        String endUnit = ingredient.getEndUnit();
-//        String startUnit = ingredient.getStartUnit();
-//
-//        if(Objects.equals(endUnit, "")) {
-//            endUnit = startUnit;
-//        }
-//
-//        Unit unit = new Unit(startUnit);
-//        double amount;
-//
-//        if (!startUnit.equals(endUnit)) {
-//            unit = unitService.findByNameElseAdd(unit);
-//            amount = unitService.convertToAnyUnit(
-//                    ingredient.getStartUnit(),
-//                    ingredient.getEndUnit(),
-//                    ingredient.getAmount());
-//        } else {
-//            unit = unitService.findByNameElseAdd(unit);
-//            if (ingredient.getAmount() != null) {
-//                amount = ingredient.getAmount();
-//            } else {
-//                amount = 0;
-//            }
-//
-//        }
+        Unit unit = new Unit (ingredient.getUnit());
 
-        Unit unit = new Unit (ingredient.getStartUnit());
         Double amount = ingredient.getAmount();
         if (amount < 0) {
             amount = 0.0;

@@ -20,13 +20,6 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    /*CRUD operations are created out of the box by spring boot rest
-    POST: Creates a new resource (overridden, "/custom/categories")
-    GET: Reads/Retrieve a resource ("/categories", "/categories/{id}")
-    PUT: Updates an existing resource ("/categories/{id}")
-    DELETE: Deletes a resource ("/categories/{id}")
-    */
-
     private final CategoryRepository categoryRepository;
     private final IngredientRepository ingredientRepository;
     private final RecipeRepository recipeRepository;
