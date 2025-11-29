@@ -57,6 +57,12 @@ public class SecurityConfiguration {
                         .invalidateHttpSession(true)
                         .logoutSuccessUrl("/logoutSuccess")
                         )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            System.out.println("Access denied to: " + request.getRequestURI());
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                        })
+                )
                 .build();
     }
 
