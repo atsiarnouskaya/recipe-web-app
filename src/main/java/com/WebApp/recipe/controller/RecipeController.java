@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "https://recipe-web-app-front-recipe.up.railway.app/")
 @RestController
 @RequestMapping("/custom")
 public class RecipeController {
