@@ -99,15 +99,15 @@ POST /logout - loging out ({})
 #### Recipes
 
 ```http
-  GET /custom/recipes - get all recipes from a db
-  GET /custom/recipe/${id} - get recipe with id == id
-  GET /custom/recipes/${userId} - get users with id == userId recipes
-  GET /categories - get all categories from a db
-  GET /custom/${userId}/favRecipes - get users with id == userId favourite recipes
-  POST /custom/addRecipe - add a new recipe ({recipe object})
-  PUT /custom/deleteRecipe/${id} - soft delete (change a flag in a db) of recipe with id == id
-  PUT /custom/recipes/${id} - updating a recipe with id == id
-  PUT /custom/fav - liking or disliking a recipe ({recipeId, mode (like or dislike)})
+GET /custom/recipes - get all recipes from a db
+GET /custom/recipe/${id} - get recipe with id == id
+GET /custom/recipes/${userId} - get users with id == userId recipes
+GET /categories - get all categories from a db
+GET /custom/${userId}/favRecipes - get users with id == userId favourite recipes
+POST /custom/addRecipe - add a new recipe ({recipe object})
+PUT /custom/deleteRecipe/${id} - soft delete (change a flag in a db) of recipe with id == id
+PUT /custom/recipes/${id} - updating a recipe with id == id
+PUT /custom/fav - liking or disliking a recipe ({recipeId, mode (like or dislike)})
 ```
 
 ## Run Locally
