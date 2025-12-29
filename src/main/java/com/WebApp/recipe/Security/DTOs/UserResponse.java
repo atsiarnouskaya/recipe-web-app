@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserResponse {
     private int id;
+    private boolean isVerified;
     private String username;
     private String message;
 
@@ -18,5 +19,11 @@ public class UserResponse {
         this.id = id;
         this.username = username;
         this.message = "";
+    }
+
+    public UserResponse(int id, String username, String message) {
+        this.id = id;
+        this.username = username;
+        this.message = message;
     }
 }

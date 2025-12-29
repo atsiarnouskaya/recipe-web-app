@@ -35,3 +35,4 @@ target/
 *.iws
 *.iml
 *.ipr
+.env

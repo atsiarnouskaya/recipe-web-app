@@ -51,6 +51,9 @@ public class User {
     @ManyToMany(mappedBy = "users")
     List<Recipe> favoriteRecipes;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    EmailVerification emailVerification;
+
     public void addFavoriteRecipe(Recipe recipe) {
         if (this.favoriteRecipes == null) {
             this.favoriteRecipes = new ArrayList<>();

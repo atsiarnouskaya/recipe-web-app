@@ -23,4 +23,8 @@ public class UserRequest {
     @NotBlank(message = "Username and password cannot be empty")
     @Size(min = 1, max = 50, message = "Username and password must not be longer than 50 characters")
     private String password;
+
+    @NotBlank(message = "Username and password cannot be empty")
+    @Size(min = 1, max = 55, message = "length must be from 1 to 55 symbols")
+    private String email;
 }
