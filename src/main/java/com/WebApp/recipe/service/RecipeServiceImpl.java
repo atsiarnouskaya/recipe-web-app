@@ -245,6 +245,7 @@ public class RecipeServiceImpl implements RecipeService {
         List<RecipeResponse> recipeResponses = new ArrayList<>();
         if (!recipes.isEmpty()) {
             for (Recipe recipe : recipes) {
+                if (recipe.getIsDeleted()) continue;
                 recipeResponses.add(mapper.toRecipeResponseDTO(recipe));
             }
         }
