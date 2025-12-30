@@ -24,22 +24,24 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
+    private final EmailVerificationRepository emailVerificationRepository;
     private final EmailVerificationService emailVerificationService;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailVerificationService emailVerificationService) {
+    public UserServiceImpl(UserRepository userRepository, EmailVerificationRepository emailVerificationRepository, EmailVerificationService emailVerificationService) {
         this.userRepository = userRepository;
+        this.emailVerificationRepository = emailVerificationRepository;
         this.emailVerificationService = emailVerificationService;
     }
 
     @Override
     public UserResponse getUserByUsername(String username) {
-        Optional<User> user = userRepository.findUserByUsername(username);
-        if (user.isPresent()) {
-            return new UserResponse(user.get().getId(), user.get().getUsername());
+        Optional<User> userOptional = userRepository.findUserByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return new UserResponse(user.getId(), user.getUsername(), user.getEmailVerification().getEmail());
         }
         throw new UsernameNotFoundException("User not found");
     }
@@ -48,6 +50,12 @@ public class UserServiceImpl implements UserService {
     public UserResponse signUpUser(UserRequest user) throws UserAlreadyExistsException, IllegalArgumentException {
 
         Optional<User> userOptional = userRepository.findUserByUsername(user.getUsername().strip());
+        Optional<EmailVerification> emailVerificationOptional = emailVerificationRepository.findByEmail(user.getEmail());
+
+        if (emailVerificationOptional.isPresent()) {
+            throw new UserAlreadyExistsException("User with this email already exists");
+        }
+
         EmailVerification emailVerification = new EmailVerification();
         User newUser;
         if (userOptional.isPresent()) {
@@ -60,7 +68,6 @@ public class UserServiceImpl implements UserService {
                 emailVerificationService.generateAndSendVerificationEmail(emailVerification);
                 throw new UserAlreadyExistsException("User with username: " + newUser.getUsername() + " already exists and is not verified. Verification code has been sent");
             }
-
         }
 
         newUser = new User(false, user.getUsername().strip(), bCryptPasswordEncoder.encode(user.getPassword().strip()));
@@ -70,6 +77,6 @@ public class UserServiceImpl implements UserService {
         newUser.setEmailVerification(emailVerification);
         emailVerification.setUser(newUser);
         newUser = userRepository.save(newUser);
-        return new UserResponse(newUser.getId(), newUser.getUsername());
+        return new UserResponse(newUser.getId(), newUser.getUsername(), newUser.getEmailVerification().getEmail());
     }
 }

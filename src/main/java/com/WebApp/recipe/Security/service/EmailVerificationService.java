@@ -25,6 +25,7 @@ public class EmailVerificationService {
         this.emailVerificationRepository = emailVerificationRepository;
         this.emailService = emailService;
     }
+
     
     public VerificationResponse verifyCode(VerificationRequest verificationRequest) {
         String code = verificationRequest.getVerificationCode();
@@ -38,12 +39,12 @@ public class EmailVerificationService {
 
             if (emailVerification.getIsVerified()) {
                 user.setEnabled(true);
-                return new VerificationResponse(true, TOKEN_MAX_ATTEMPTS, "The user is already verified.");
+                return new VerificationResponse(true, email, TOKEN_MAX_ATTEMPTS, "The user is already verified.");
             }
 
             if (emailVerification.getVerificationCodeAttempts() >= TOKEN_MAX_ATTEMPTS) {
                 user.setEnabled(false);
-                return new VerificationResponse(false, 0, "The user tried to verify too many times.");
+                return new VerificationResponse(false, email, 0, "You tried to verify your email too many times. Please generate a new code.");
             }
 
             if (emailVerification.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
@@ -51,7 +52,7 @@ public class EmailVerificationService {
                 emailVerification.setIsVerified(false);
                 emailVerification.setVerificationCodeAttempts(0);
                 emailVerificationRepository.save(emailVerification);
-                return new VerificationResponse(false, TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts(), "Code is expired. Please generate a new one.");
+                return new VerificationResponse(false, email,TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts(), "Code is expired. Please generate a new one.");
             }
 
             if (!hashedToken.equals(emailVerification.getVerificationCode())) {
@@ -59,7 +60,7 @@ public class EmailVerificationService {
                 emailVerification.setIsVerified(false);
                 emailVerification.setVerificationCodeAttempts(emailVerification.getVerificationCodeAttempts() + 1);
                 emailVerificationRepository.save(emailVerification);
-                return new VerificationResponse(false, TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts(), "Code is incorrect. Please try again.");
+                return new VerificationResponse(false, email,TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts(), "Code is incorrect. Please try again.");
             }
 
             user.setEnabled(true);
@@ -69,22 +70,22 @@ public class EmailVerificationService {
             emailVerification.setVerificationCodeExpiresAt(null);
             emailVerification.setVerificationCodeAttempts(0);
             emailVerificationRepository.save(emailVerification);
-            return new VerificationResponse(true, TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts(), "The email is verified.");
+            return new VerificationResponse(true, email,TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts(), "The email is verified.");
         }
 
-        return new VerificationResponse(false, 0, "There is no user registered with this email.");
+        return new VerificationResponse(false, email,0, "There is no user registered with this email.");
     }
 
-    public VerificationResponse resendVerificationCode(VerificationRequest emailVerificationRequest) {
-        Optional<EmailVerification> emailVerificationOptional = emailVerificationRepository.findVerificationCodeByEmail(emailVerificationRequest.getEmail());
+    public VerificationResponse resendVerificationCode(String email) {
+        Optional<EmailVerification> emailVerificationOptional = emailVerificationRepository.findVerificationCodeByEmail(email);
         if (emailVerificationOptional.isPresent()) {
             EmailVerification emailVerification = emailVerificationOptional.get();
             User user = emailVerification.getUser();
             user.setEnabled(false);
             generateAndSendVerificationEmail(emailVerification);
-            return new VerificationResponse(false, TOKEN_MAX_ATTEMPTS, "The code has been resent");
+            return new VerificationResponse(false, email, TOKEN_MAX_ATTEMPTS, "The code has been resent");
         }
-        return new VerificationResponse(false, 0, "There is no user registered with this email.");
+        return new VerificationResponse(false, email,0, "There is no user registered with this email.");
     }
 
     public void generateAndSendVerificationEmail(EmailVerification emailVerification) {

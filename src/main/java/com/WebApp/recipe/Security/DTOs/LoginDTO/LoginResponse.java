@@ -1,4 +1,4 @@
-package com.WebApp.recipe.Security.DTOs.VerifyEmailDTO;
+package com.WebApp.recipe.Security.DTOs.LoginDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,9 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class VerificationResponse {
-    private boolean isVerified;
+public class LoginResponse {
+    private int id;
+    private boolean enabled;
+    private String username;
     private String email;
-    private int attemptsLeft;
     private String message;
 }
