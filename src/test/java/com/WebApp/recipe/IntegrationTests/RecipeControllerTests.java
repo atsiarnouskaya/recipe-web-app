@@ -1,15 +1,15 @@
 package com.WebApp.recipe.IntegrationTests;
 
-import com.WebApp.recipe.Security.DTOs.UserRequest;
-import com.WebApp.recipe.Security.entity.User;
-import com.WebApp.recipe.Security.repository.UserRepository;
-import com.WebApp.recipe.dto.IngredientDTOs.IngredientRequest;
-import com.WebApp.recipe.dto.Mapper;
-import com.WebApp.recipe.dto.RecipeDTOs.FavRequest;
-import com.WebApp.recipe.dto.RecipeDTOs.RecipeRequest;
-import com.WebApp.recipe.dto.RecipeDTOs.RecipeResponse;
-import com.WebApp.recipe.entity.Recipe;
-import com.WebApp.recipe.repository.RecipeRepository;
+import com.WebApp.recipe.DTOs.UserDTOs.UserRequest;
+import com.WebApp.recipe.Entities.UserEntities.User;
+import com.WebApp.recipe.Repositories.UserRepositories.UserRepository;
+import com.WebApp.recipe.DTOs.IngredientDTOs.IngredientRequest;
+import com.WebApp.recipe.DTOs.Mapper;
+import com.WebApp.recipe.DTOs.RecipeDTOs.FavRequest;
+import com.WebApp.recipe.DTOs.RecipeDTOs.RecipeRequest;
+import com.WebApp.recipe.DTOs.RecipeDTOs.RecipeResponse;
+import com.WebApp.recipe.Entities.RecipeEntities.Recipe;
+import com.WebApp.recipe.Repositories.RecipeRepositories.RecipeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,6 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -67,7 +66,7 @@ public class RecipeControllerTests {
         User savedUser = userRepository.save(user);
         savedUserId = savedUser.getId();
 
-        UserRequest userRequest = new UserRequest("test", "test");
+        UserRequest userRequest = new UserRequest("test","test", "test");
 
         String loginURL = "http://localhost:" + port + "/signin";
 

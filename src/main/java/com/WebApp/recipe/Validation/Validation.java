@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-//this class catches all the exceptions appeared in my REST controller
+//this class catches all the exceptions appeared in my REST Controllers
 @RestControllerAdvice
 public class Validation {
 
