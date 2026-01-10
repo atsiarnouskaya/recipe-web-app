@@ -31,9 +31,9 @@ public class VerificationEmailController {
         return new ResponseEntity<>(verificationResponse, HttpStatus.BAD_REQUEST);
     }
 
-//    @PostMapping("/resendVerificationCode")
-//    public ResponseEntity<VerificationResponse> resendVerificationCode(@RequestBody String email) {
-//        VerificationResponse verificationResponse = emailVerificationService.resendVerificationCode(email);
-//        return new ResponseEntity<>(verificationResponse, HttpStatus.OK);
-//    }
+    @PostMapping("/resendVerificationCode")
+    public ResponseEntity<VerificationResponse> resendVerificationCode(@RequestBody String email) {
+        VerificationResponse verificationResponse = emailVerificationService.resendVerificationCode(email);
+        return new ResponseEntity<>(verificationResponse, HttpStatus.OK);
+    }
 }

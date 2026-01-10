@@ -9,6 +9,7 @@ import com.WebApp.recipe.Preprocessing.Normalizer;
 import com.WebApp.recipe.Repositories.UserRepositories.EmailVerificationRepository;
 import com.WebApp.recipe.Utils.VerificationCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,12 @@ public class EmailVerificationService {
     private static final int TOKEN_MAX_ATTEMPTS = 5;
 
     private final EmailVerificationRepository emailVerificationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public EmailVerificationService(EmailVerificationRepository emailVerificationRepository) {
+    public EmailVerificationService(EmailVerificationRepository emailVerificationRepository, ApplicationEventPublisher eventPublisher) {
         this.emailVerificationRepository = emailVerificationRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -85,7 +88,7 @@ public class EmailVerificationService {
 
                 int attemptsLeft = TOKEN_MAX_ATTEMPTS - emailVerification.getVerificationCodeAttempts();
 
-                return new VerificationResponse(false, email, attemptsLeft, "Code is incorrect. Please try again.");
+                return new VerificationResponse(false, email, attemptsLeft, "Code is incorrect. Please try again. You have " + attemptsLeft + " more attempts.");
             }
 
             user.setEnabled(true);
@@ -102,18 +105,24 @@ public class EmailVerificationService {
         return new VerificationResponse(false, email,0, "There is no user registered with this email.");
     }
 
-//    public VerificationResponse resendVerificationCode(String email) {
-//        Optional<EmailVerification> emailVerificationOptional = emailVerificationRepository.findVerificationCodeByEmail(email);
-//        if (emailVerificationOptional.isPresent()) {
-//            EmailVerification emailVerification = emailVerificationOptional.get();
-//            User user = emailVerification.getUser();
-//            user.setEnabled(false);
-//            generateAndSendVerificationEmail(emailVerification);
-//            return new VerificationResponse(false, email, TOKEN_MAX_ATTEMPTS, "The code has been resent");
-//        }
-//        return new VerificationResponse(false, email,0, "There is no user registered with this email.");
-//    }
+    @Transactional
+    public VerificationResponse resendVerificationCode(String email) {
+        email = email.toLowerCase().strip().replaceAll("//s+", "");
+        Optional<EmailVerification> emailVerificationOptional = emailVerificationRepository.findVerificationCodeByEmail(email);
 
+        if (emailVerificationOptional.isPresent()) {
+
+            EmailVerification emailVerification = emailVerificationOptional.get();
+            User user = emailVerification.getUser();
+            user.setEnabled(false);
+            EmailVerificationEvent event = generateVerificationCode(emailVerification);
+            eventPublisher.publishEvent(event);
+            return new VerificationResponse(false, email, TOKEN_MAX_ATTEMPTS, "The code has been resent");
+        }
+        return new VerificationResponse(false, email,0, "There is no user registered with this email.");
+    }
+
+    @Transactional
     public EmailVerificationEvent generateVerificationCode(EmailVerification emailVerification) {
         String email = emailVerification.getEmail();
 
