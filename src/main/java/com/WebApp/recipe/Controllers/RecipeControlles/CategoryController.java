@@ -3,12 +3,16 @@ package com.WebApp.recipe.Controllers.RecipeControlles;
 import com.WebApp.recipe.DTOs.CategoryDTOs.CategoryRequest;
 import com.WebApp.recipe.DTOs.CategoryDTOs.CategoryResponse;
 import com.WebApp.recipe.DTOs.Mapper;
+import com.WebApp.recipe.Entities.RecipeEntities.Category;
 import com.WebApp.recipe.Services.RecipeSevices.CategoryService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("custom")
+@RequestMapping("/custom")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -24,6 +28,11 @@ public class CategoryController {
         categoryService.deleteCategory(categoryRequest);
 
         return mapper.toCategoryResponse(categoryRequest);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
 }

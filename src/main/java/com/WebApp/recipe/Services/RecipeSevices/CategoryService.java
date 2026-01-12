@@ -4,6 +4,8 @@ import com.WebApp.recipe.DTOs.CategoryDTOs.CategoryRequest;
 import com.WebApp.recipe.DTOs.CategoryDTOs.CategoryResponse;
 import com.WebApp.recipe.Entities.RecipeEntities.Category;
 
+import java.util.List;
+
 public interface CategoryService {
 
     CategoryResponse addCategory(CategoryRequest categoryRequest);
@@ -11,4 +13,6 @@ public interface CategoryService {
     Category findFirstByCategoryName(String categoryName);
 
     void deleteCategory(CategoryRequest categoryRequest);
+
+    List<CategoryResponse> getAllCategories();
 }

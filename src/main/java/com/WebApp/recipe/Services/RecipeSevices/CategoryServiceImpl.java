@@ -94,6 +94,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<CategoryResponse> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+
+        return categories
+                .stream()
+                .map(cat -> mapper.toCategoryResponse(cat))
+                .toList();
+    }
+
+    @Override
     public Category findFirstByCategoryName(String categoryName) {
         Optional<Category> foundCategory = categoryRepository.findFirstByCategoryName(categoryName);
 

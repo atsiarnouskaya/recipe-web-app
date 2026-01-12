@@ -1,4 +1,4 @@
-package com.WebApp.recipe.Validation;
+package com.WebApp.recipe.GlobalExceptionHandling;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 //this class catches all the exceptions appeared in my REST Controllers
 @RestControllerAdvice
-public class Validation {
+public class ValidationExceptionHandler {
 
     //this method catches exceptions connected with validation
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -21,9 +21,8 @@ public class Validation {
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+            errors.put("message", errorMessage);
         });
         System.out.println(errors);
         return errors;

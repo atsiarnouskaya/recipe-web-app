@@ -32,7 +32,6 @@ public class RegistrationAndLoginController {
         this.authService = authService;
     }
 
-
     @PostMapping("/signup")
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest userRequest) {
         UserResponse userResponse;
@@ -60,7 +59,7 @@ public class RegistrationAndLoginController {
             }
         } catch (UserAlreadyExistsException e) {
             UserResponse user = userService.getUserByUsername(loginRequest.getUsername());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body((new LoginResponse(user.getId(), true, user.getUsername(), user.getEmail(), e.getMessage())));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body((new LoginResponse(user.getId(), false, user.getUsername(), user.getEmail(), e.getMessage())));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

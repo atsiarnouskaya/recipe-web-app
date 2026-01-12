@@ -66,4 +66,8 @@ public class Mapper {
     public CategoryResponse toCategoryResponse(CategoryRequest categoryRequest) {
         return new CategoryResponse(categoryRequest.getCategoryName());
     }
+
+    public CategoryResponse toCategoryResponse(Category category) {
+        return new CategoryResponse(category.getCategoryName());
+    }
 }
