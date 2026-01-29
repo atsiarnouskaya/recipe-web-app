@@ -88,7 +88,8 @@ public class RecipeControllerTests {
                         "before test category",
                         5.0,
                         "l")),
-                "");
+                "",
+                null);
         Recipe recipe = mapper.toRecipe(recipeRequest);
         recipe.setUser(savedUser);
 
@@ -113,7 +114,8 @@ public class RecipeControllerTests {
                         "test category",
                         4.0,
                         "g")),
-                "");
+                "",
+                null);
         HttpEntity<RecipeRequest> request = new HttpEntity<>(recipeRequest, headersWithSession);
 
         ResponseEntity<RecipeResponse> response = restTemplate
@@ -217,7 +219,7 @@ public class RecipeControllerTests {
                         "before test category",
                         5.0,
                         "l")),
-                "");
+                "", null);
 
         HttpEntity<RecipeRequest> request = new HttpEntity<>(recipeUpdateRequest, headersWithSession);
 

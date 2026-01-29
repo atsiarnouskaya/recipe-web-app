@@ -43,13 +43,16 @@ public class Recipe {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
+    @Column(name = "image_public_id")
+    private String imagePublicId;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(
             name = "users_fav_recipes",
             joinColumns = @JoinColumn (name = "recipe_id"),
             inverseJoinColumns = @JoinColumn(name="user_id")
     )
-    List<User> users = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe",
             cascade = CascadeType.ALL,
@@ -71,6 +74,17 @@ public class Recipe {
         this.instructions = instructions;
         this.video = video;
         this.ingredients = ingredients;
+        this.isDeleted = false;
+    }
+
+    public Recipe(String title, String shortDescription, String instructions, Video video, String imagePublicId, List<RecipeIngredient> ingredients) {
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.instructions = instructions;
+        this.video = video;
+        this.imagePublicId = imagePublicId;
+        this.ingredients = ingredients;
+        this.isDeleted = false;
     }
 
     public void deleteRecipe() {

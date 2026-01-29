@@ -8,12 +8,15 @@ import com.WebApp.recipe.Services.RecipeSevices.RecipeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -34,13 +37,14 @@ public class RecipeController {
      * @param userDetails
      * @return ResponseEntity with status 200 if no error occurred while saving recipe
      */
-    @PostMapping("/addRecipe")
-    public ResponseEntity<RecipeResponse> addRecipe(@Valid @RequestBody RecipeRequest recipeRequest,
-                                                    @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping(path = "/addRecipe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RecipeResponse> addRecipe(@Valid @RequestPart("recipeJSON") RecipeRequest recipeRequest,
+                                                    @RequestPart("image") MultipartFile image,
+                                                    @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         String username = userDetails.getUsername();
         recipeRequest.setUsername(username);
 
-        RecipeResponse recipeResponse = recipeService.save(recipeRequest);
+        RecipeResponse recipeResponse = recipeService.save(recipeRequest, image);
 
         if (recipeResponse != null) {
             return ResponseEntity.ok(recipeResponse);

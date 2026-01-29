@@ -9,13 +9,18 @@ import com.WebApp.recipe.DTOs.IngredientDTOs.IngredientRequest;
 import com.WebApp.recipe.DTOs.Mapper;
 import com.WebApp.recipe.DTOs.RecipeDTOs.RecipeRequest;
 import com.WebApp.recipe.DTOs.RecipeDTOs.RecipeResponse;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.cloudinary.Cloudinary;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -32,11 +37,12 @@ public class RecipeServiceImpl implements RecipeService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final Mapper mapper;
+    private final Cloudinary cloudinary;
 
     @Autowired
     public RecipeServiceImpl(RecipeRepository recipeRepository,
                              IngredientRepository ingredientRepository, RecipeIngredientRepository recipeIngredientRepository, VideoRepository videoRepository, IngredientService ingredientService, CategoryService categoryService, UnitService unitService, UserService userService, CategoryRepository categoryRepository, UserRepository userRepository,
-                             Mapper mapper) {
+                             Mapper mapper, Cloudinary cloudinary) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
         this.recipeIngredientRepository = recipeIngredientRepository;
@@ -48,6 +54,7 @@ public class RecipeServiceImpl implements RecipeService {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.mapper = mapper;
+        this.cloudinary = cloudinary;
     }
 
     @Override
@@ -110,7 +117,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional
-    public RecipeResponse save(RecipeRequest recipeRequest) {
+    public RecipeResponse save(RecipeRequest recipeRequest, MultipartFile image) throws IOException {
         Recipe recipe = mapper.toRecipe(recipeRequest);
         String username = recipeRequest.getUsername();
         Optional<Recipe> recipeFromDB = recipeRepository.findRecipeByTitle(recipeRequest.getTitle());
@@ -135,6 +142,9 @@ public class RecipeServiceImpl implements RecipeService {
             addIngredientsToRecipe(ingredient, recipe);
 
         }
+
+        String publicId = uploadToCloudStorage(image);
+        recipe.setImagePublicId(publicId);
 
         recipeRepository.save(recipe);
         return mapper.toRecipeResponseDTO(recipe);
@@ -309,4 +319,13 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.addIngredient(recipeIngredient);
     }
 
+    private String uploadToCloudStorage(MultipartFile file) {
+        try{
+            Map uploadedFile = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return (String) uploadedFile.get("public_id");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

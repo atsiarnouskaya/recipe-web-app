@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +21,7 @@ public class RecipeResponse {
     private String steps;
     private List<IngredientResponse> ingredients;
     private String videoURL;
+    private String publicImageId;
 
     private int userId;
     private String username;
