@@ -39,7 +39,7 @@ public class RecipeController {
      */
     @PostMapping(path = "/addRecipe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecipeResponse> addRecipe(@Valid @RequestPart("recipeJSON") RecipeRequest recipeRequest,
-                                                    @RequestPart("image") MultipartFile image,
+                                                    @RequestPart(value = "image", required = false) MultipartFile image,
                                                     @AuthenticationPrincipal UserDetails userDetails) throws IOException {
         String username = userDetails.getUsername();
         recipeRequest.setUsername(username);

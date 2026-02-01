@@ -10,16 +10,24 @@ import com.WebApp.recipe.DTOs.RecipeDTOs.RecipeRequest;
 import com.WebApp.recipe.DTOs.RecipeDTOs.RecipeResponse;
 import com.WebApp.recipe.Entities.RecipeEntities.Recipe;
 import com.WebApp.recipe.Repositories.RecipeRepositories.RecipeRepository;
+import com.WebApp.recipe.Utils.Configs.CloudinaryConfiguration;
+import com.cloudinary.Cloudinary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -32,6 +40,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(properties = {
+        "CLOUDINARY_CLOUD_NAME=mock",
+        "CLOUDINARY_API_KEY=mock",
+        "CLOUDINARY_API_SECRET=mock"
+})
 public class RecipeControllerTests {
 
     @Container
@@ -49,6 +62,12 @@ public class RecipeControllerTests {
 
     @Autowired
     private RecipeRepository recipeRepository;
+
+    @MockitoBean
+    private Cloudinary cloudinary;
+
+    @MockitoBean
+    private CloudinaryConfiguration cloudinaryConfiguration;
 
     HttpHeaders headersWithSession;
     Mapper mapper = new Mapper();
@@ -88,8 +107,7 @@ public class RecipeControllerTests {
                         "before test category",
                         5.0,
                         "l")),
-                "",
-                null);
+                "");
         Recipe recipe = mapper.toRecipe(recipeRequest);
         recipe.setUser(savedUser);
 
@@ -99,9 +117,7 @@ public class RecipeControllerTests {
 
     @Test
     void addRecipeTestWithSessionID() {
-
         String url = "http://localhost:" + port + "/custom/addRecipe";
-
 
         RecipeRequest recipeRequest = new RecipeRequest(
                 "test",
@@ -114,9 +130,23 @@ public class RecipeControllerTests {
                         "test category",
                         4.0,
                         "g")),
-                "",
-                null);
-        HttpEntity<RecipeRequest> request = new HttpEntity<>(recipeRequest, headersWithSession);
+                "");
+
+        headersWithSession.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+
+        HttpHeaders jsonHeaders = new HttpHeaders();
+        jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<RecipeRequest> recipePart = new HttpEntity<>(recipeRequest, jsonHeaders);
+
+        body.add("recipeJSON", recipePart);
+
+
+        body.add("image", null);
+
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headersWithSession);
+
 
         ResponseEntity<RecipeResponse> response = restTemplate
                 .exchange(url, HttpMethod.POST, request, RecipeResponse.class);
@@ -219,7 +249,7 @@ public class RecipeControllerTests {
                         "before test category",
                         5.0,
                         "l")),
-                "", null);
+                "");
 
         HttpEntity<RecipeRequest> request = new HttpEntity<>(recipeUpdateRequest, headersWithSession);
 

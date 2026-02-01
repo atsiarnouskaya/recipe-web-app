@@ -142,9 +142,12 @@ public class RecipeServiceImpl implements RecipeService {
             addIngredientsToRecipe(ingredient, recipe);
 
         }
-
-        String publicId = uploadToCloudStorage(image);
-        recipe.setImagePublicId(publicId);
+        if (image != null) {
+            String publicId = uploadToCloudStorage(image);
+            recipe.setImagePublicId(publicId);
+        } else {
+            recipe.setImagePublicId(null);
+        }
 
         recipeRepository.save(recipe);
         return mapper.toRecipeResponseDTO(recipe);
