@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -55,5 +56,4 @@ public class RecipeRequest {
     @Size(max = 50, message = "Length must be less than 50")
     @Pattern(regexp = "(https://www\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11})?", message = "Invalid youtube link")
     private String videoURL;
-
 }
